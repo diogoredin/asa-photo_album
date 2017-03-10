@@ -8,9 +8,9 @@ CC = gcc
 # Adding recommended warnings
 CFLAGS+= -Wall -Wextra -Wunreachable-code
 # Abusing warning switches
-CFLAGS+= -Wbad-function-cast -Wstrict-prototypes -Wmissing-prototypes
-CFLAGS+= -Wdeclaration-after-statement -Wshadow -Wpointer-arith -Wcast-qual
-CFLAGS+= -Wno-missing-braces -Wno-missing-field-initializers -Winline
+CFLAGS+= -Wbad-function-cast -Wstrict-prototypes -Wdeclaration-after-statement
+CFLAGS+= -Wshadow -Wpointer-arith -Wcast-qual -Wno-missing-braces -Winline
+CFLAGS+= -Wno-missing-field-initializers
 
 # Executables
 EXEC = $(OBJDIR)/proj
