@@ -1,3 +1,6 @@
+# Specific files
+bld/proj
+
 # Object files
 *.o
 *.ko
