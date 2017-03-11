@@ -161,9 +161,9 @@ function test_dir {
 	# Run tests
 	local fail_count=0
 	for test_input in $1/*.in; do
-		local test_output = "${test_input%.in}.out"
-		local test_outhyp = "${test_input%.in}.outhyp"
-		local test_result = "${test_input%.in}.diff"
+		local test_output="${test_input%.in}.out"
+		local test_outhyp="${test_input%.in}.outhyp"
+		local test_result="${test_input%.in}.diff"
 
 		# Running program
 		if [ "$useValgrind" ]; then
