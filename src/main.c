@@ -5,16 +5,23 @@
 
 /* C Libraries. Only the bare minimum, no need for clutter */
 #include <stdio.h>
+#include <stdlib.h>
 
 /*************************** Auxiliary functions ******************************/
 #define get_numbers(a, b) scanf("%d %d", a, b)
 
 /******************** Data structures and their "methods" *********************/
-// FIXME: These "defines" are NOT final.
+// FIXME: These data structures (and "methods") are NOT final.
 #define Vertex int
 #define Graph  Vertex*
 
+// Creates a new vertex and returns it
 #define new_vertex(a) a
+
+// Connects two vertices in the graph (and inserts them if they're not there)
+void connect_graph(Graph g, Vertex v1, Vertex v2) {
+	// TODO: depends on our data structures implementation
+}
 
 Graph new_graph(int num_v, int num_e) {
 	Graph g = malloc(num_v * sizeof(g));
@@ -23,15 +30,15 @@ Graph new_graph(int num_v, int num_e) {
 		int num1, num2;
 		get_numbers(&num1, &num2);
 
-		Vertex vertex1 = new_vertex(num1);
-		Vertex vertex2 = new_vertex(num2);
-
-		// TODO: Insert these vertices into our graph
+		Vertex v1 = new_vertex(num1);
+		Vertex v2 = new_vertex(num2);
+		connect_graph(g, v1, v2);
 	}
 
 	return g;
 }
 
+// Examines a given graph and either returns an error message, or prints the graph
 char *examine_graph(Graph g, int size) {
 	if (g == NULL) { return "Nulo"; }
 
@@ -55,7 +62,7 @@ int main(void) {
 	int num_v, num_e;
 	get_numbers(&num_v, &num_e);
 
-	// Initializing our graphs
+	// Initializing our graph
 	Graph g = new_graph(num_v, num_e);
 
 	// Applying algorithm
