@@ -45,7 +45,6 @@ readonly usage_content=( "Usage: $(basename $ScriptName)"
 readonly DIR_current="$(pwd)"
 
 # Options
-BOOL_useValgrind=false
 BOOL_recursive=true
 BOOL_showAll=false
 
@@ -79,7 +78,6 @@ function parse_args {
 			# OPTIONS
 			-m | --use-valgrind )
 				useValgrind="valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --db-attach=yes"
-				BOOL_useValgrind=true
 				;;
 			--show-all )
 				BOOL_showAll=true
@@ -140,7 +138,7 @@ function check_env {
 	fi
 
 	# Checking valgrind
-	if [ $BOOL_useValgrind -a -z "$(which valgrind)" ]; then
+	if [ "$useValgrind" -a -z "$(which valgrind)" ]; then
 		print_error "valgrind is not installed."
 		return $RET_error
 	fi
@@ -168,7 +166,7 @@ function test_dir {
 		local test_result = "${test_input%.in}.diff"
 
 		# Running program
-		if [ $BOOL_useValgrind ]; then
+		if [ "$useValgrind" ]; then
 			$useValgrind $EXEC_prog < $test_input
 		else
 			$EXEC_prog < $test_input > $test_outhyp
