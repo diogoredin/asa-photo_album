@@ -9,7 +9,30 @@
 /*************************** Auxiliary functions ******************************/
 #define get_numbers(a, b) scanf("%d %d", a, b)
 
-char *get_result(Graph g, int size) {
+/******************** Data structures and their "methods" *********************/
+// FIXME: These "defines" are NOT final.
+#define Vertex int
+#define Graph  Vertex*
+
+#define new_vertex(a) a
+
+Graph new_graph(int num_v, int num_e) {
+	Graph g = malloc(num_v * sizeof(g));
+
+	for (int i = 0; i < num_e; i++) {
+		int num1, num2;
+		get_numbers(&num1, &num2);
+
+		Vertex vertex1 = new_vertex(num1);
+		Vertex vertex2 = new_vertex(num2);
+
+		// TODO: Insert these vertices into our graph
+	}
+
+	return g;
+}
+
+char *examine_graph(Graph g, int size) {
 	if (g == NULL) { return "Nulo"; }
 
 	// TODO: check graph's status and write the appropriate message
@@ -21,15 +44,6 @@ char *get_result(Graph g, int size) {
 		// TODO: Loop through our graph and print each of its value in order
 		return "";
 	}
-}
-
-/******************** Data structures and their "methods" *********************/
-#define Vertex int
-#define Graph  Vertex*
-
-Graph new_graph(int num_v, int num_e) {
-	// TODO: this depends on our implementation
-	return NULL;
 }
 
 /************************ Algorithm-related functions *************************/
@@ -48,7 +62,7 @@ int main(void) {
 	// TODO: make function call to algorithm that receives our graph
 
 	// Writing our result
-	printf("%s\n", get_result(g, max_v));
+	printf("%s\n", examine_graph(g, max_v));
 
 	return 0;
 }
