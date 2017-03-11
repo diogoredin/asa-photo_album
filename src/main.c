@@ -52,17 +52,17 @@ char *examine_graph(Graph g, int size) {
 /***************************** MAIN function **********************************/
 int main(void) {
 	// Grabbing number of pictures (Vertices) and connections (Edges)
-	int max_v, max_e;
-	get_numbers(&max_v, &max_e);
+	int num_v, num_e;
+	get_numbers(&num_v, &num_e);
 
 	// Initializing our graphs
-	Graph g = new_graph(max_v, max_e);
+	Graph g = new_graph(num_v, num_e);
 
 	// Applying algorithm
 	// TODO: make function call to algorithm that receives our graph
 
 	// Writing our result
-	printf("%s\n", examine_graph(g, max_v));
+	printf("%s\n", examine_graph(g, num_v));
 
 	return 0;
 }
