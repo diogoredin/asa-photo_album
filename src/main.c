@@ -39,7 +39,7 @@ Graph new_graph(int num_v, int num_e) {
 }
 
 // Examines a given graph and either returns an error message, or prints the graph
-char *examine_graph(Graph g, int size) {
+char *examine_graph(Graph g) {
 	if (g == NULL) { return "Nulo"; }
 
 	// TODO: check graph's status and write the appropriate message
@@ -69,7 +69,7 @@ int main(void) {
 	// TODO: make function call to algorithm that receives our graph
 
 	// Writing our result
-	printf("%s\n", examine_graph(g, num_v));
+	printf("%s\n", examine_graph(g));
 
 	return 0;
 }
