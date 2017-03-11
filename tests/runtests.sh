@@ -192,7 +192,7 @@ function test_dir {
 	    fi
 	done
 
-	local total_count=$((ls -f "*.in" | wc -l))
+	local total_count=$(ls -f $1/*.in | wc -l | tr -d ' ')
 	if [ $fail_count -gt 0 ]; then
 		print_failure "Failed $fail_count / $total_count tests."
 	fi
