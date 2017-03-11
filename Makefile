@@ -15,7 +15,6 @@ CFLAGS+= -Wno-missing-field-initializers
 # Executables
 EXEC = $(OBJDIR)/proj
 
-
 # General rules
 all: $(EXEC)
 
