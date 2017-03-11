@@ -1,6 +1,10 @@
 # Specific files
 bld/proj
 
+# Test files
+*.outhyp
+*.diff
+
 # Object files
 *.o
 *.ko
