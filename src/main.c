@@ -6,15 +6,6 @@
 /* C Libraries. Only the bare minimum, no need for clutter */
 #include <stdio.h>
 
-/******************** Data structures and their "methods" *********************/
-#define Vertex int
-#define Graph  Vertex*
-
-Graph new_graph(int num_v, int num_e) {
-	// TODO: this depends on our implementation
-	return NULL;
-}
-
 /*************************** Auxiliary functions ******************************/
 #define get_numbers(a, b) scanf("%d %d", a, b)
 
@@ -30,6 +21,15 @@ char *get_result(Graph g, int size) {
 		// TODO: Loop through our graph and print each of its value in order
 		return "";
 	}
+}
+
+/******************** Data structures and their "methods" *********************/
+#define Vertex int
+#define Graph  Vertex*
+
+Graph new_graph(int num_v, int num_e) {
+	// TODO: this depends on our implementation
+	return NULL;
 }
 
 /************************ Algorithm-related functions *************************/
