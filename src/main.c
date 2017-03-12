@@ -12,8 +12,9 @@
 
 /*********************** Visit States & Graph Status **************************/
 enum visitStates {
-	UNVISITED,
-	VISITED
+	WHITE,
+	GREY,
+	BLACK
 };
 
 enum graphStatus {
@@ -27,48 +28,69 @@ enum graphStatus {
 #define Vertex int
 #define new_vertex(a) a
 
+// Node Structure
+#define Edge int
+#define new_edge(a) a
+
 // Graph Structure
 typedef struct graph {
 
+	// Graph Properties
 	int vertices;
 	int edges;
 	int status;
 
+	// Vertex Index -> Is the number of the vertex of origin
+	// Vertex[Index] -> Contains the number of the edge
 	Vertex *vertex;
-	Vertex *node;
-	Vertex *next_node;
 
+	// Edge Index -> Is the number of the edge
+	// Edge[Index] -> Contains the number of the vertex of destination
+	Edge *edge;
+
+	// Next_Edge Index -> Is the number of the edge
+	// Next_Edge[Index] -> Contains the number of another edge that has the same origin
+	Edge *next_edge;
+
+	// Stores the Visit States of the Vertices and the Topological Order of the Graph
 	int *vertex_visit;
-
 	Vertex *result;
 
 } Graph;
 
 // Connects two vertices in the Graph
-void connect_graph(Graph g, Vertex v1, Vertex v2) {
+void connect_graph(Graph g, Vertex orig, Vertex dest) {
 
-	// Vertex doesn't exist yet
-	if ( g.vertex[v1] == 0 ) {
+	// Vertex without any Edge
+	if ( g.vertex[orig] == 0 ) {
 
-		// Creates node
-		g.vertex[v1] = g.edges;
-		g.node[g.edges] = v2;
-		g.next_node[g.edges] = 0;
+		// Creates Edge (orig -> dest)
+		Edge edge = new_edge(dest);
 
-	// Vertex already exists
+		// Stores it on the Vertex array
+		g.vertex[orig] = g.edges;
+		g.edge[g.edges] = edge;
+		g.next_edge[g.edges] = 0;
+
+	// Vertex with One or More Edges
 	} else {
 
-		// Finds the first node with an available "next" position
-		int find_node;
-		for (
-			find_node = g.next_node[g.vertex[v1]]; 
-			find_node != 0;
-			find_node = g.next_node[find_node] );
+		// Last Edge created for this Vertex
+		Edge find_edge;
 
-		// Creates a new node and stores it on the node found
-		g.node[g.edges] = v2;
-		g.next_node[g.edges] = 0;
-		g.next_node[find_node] = g.edges;
+		// Finds the first Edge with an available "next" edge position
+		for (
+			find_edge = g.next_edge[g.vertex[orig]]; 
+			find_edge != 0;
+			find_edge = g.next_edge[find_edge] );
+
+		// Creates Edge (orig -> dest)
+		Edge edge = new_edge(dest);
+	
+		// Stores it on the Edge Found
+		g.edge[g.edges] = edge;
+		g.next_edge[g.edges] = 0;
+		g.next_edge[find_edge] = g.edges;
 
 	}
 
@@ -77,29 +99,25 @@ void connect_graph(Graph g, Vertex v1, Vertex v2) {
 // Creates a new Graph
 Graph new_graph(int num_v, int num_e) {
 
-	// Graph Data
+	// Graph Properties
 	Graph g;
 	g.vertices = num_v;
 
-	// Stores the start, end and next vertex of an edge
+	// Allocates Space for our Data Structures
 	g.vertex = calloc(num_v, sizeof(Vertex));
-	g.node = malloc(num_e * sizeof(Vertex));
-	g.next_node = malloc(num_e * sizeof(Vertex));
-
-	// Stores the vertex visit state
+	g.edge = malloc(num_e * sizeof(Edge));
+	g.next_edge = malloc(num_e * sizeof(Edge));
 	g.vertex_visit = malloc(num_e * sizeof(unsigned char));
-
-	// Stores the topological order of the graph
 	g.result = malloc( (num_v+1) * sizeof(Vertex) );
 
-	// Creates an edge between the given vertices
+	// Creates an Edge between the Given Vertices
 	for (g.edges = 0; g.edges < num_e; g.edges++) {
 		int num1, num2;
 		get_numbers(&num1, &num2);
 
-		Vertex v1 = new_vertex(num1);
-		Vertex v2 = new_vertex(num2);
-		connect_graph(g, v1, v2);
+		Vertex orig = new_vertex(num1);
+		Vertex dest = new_vertex(num2);
+		connect_graph(g, orig, dest);
 	}
 
 	return g;
@@ -133,17 +151,33 @@ char *examine_graph(Graph g) {
 // Tarjans auxiliary function
 void tarjans_visit(Graph g, Vertex v) {
 
-	if ( v != g.vertices ) {
+	Edge neighbour;
 
-		tarjans_visit(g, g.node[g.vertex[v]] );
+	// Goes through all neighbours of the Vertex
+	for (
+		neighbour = g.next_edge[g.vertex[v]]; 
+		neighbour != 0;
+		neighbour = g.next_edge[neighbour] ) {
 
-		if ( g.next_node[v] != 0 && g.vertex_visit[v] == UNVISITED ) {
-			tarjans_visit(g, g.node[g.next_node[v]] );
+			// If they haven't been visited persues path and marks visit
+			if ( g.edge[neighbour] != GREY || g.edge[neighbour] != BLACK ) {
+				tarjans_visit(g, g.edge[neighbour]);
+				g.vertex_visit[v] = GREY;
+			}
+
+			// If they haven't been visited persues path
+			if ( g.edge[neighbour] == GREY ) {
+				g.status = INCOHERENT;
+			}
+
+			// If they haven't been visited persues path
+			if ( g.edge[neighbour] == BLACK ) {
+				g.status = INSUFFICIENT;
+			}
+
 		}
 
-	}
-
-	g.vertex_visit[v] = VISITED;
+	g.vertex_visit[v] = BLACK;
 	g.result[v] = v;
 
 }
@@ -152,11 +186,7 @@ void tarjans_visit(Graph g, Vertex v) {
 void tarjans(Graph g) {
 
 	for (int v = 1; v <= g.vertices; v++) {
-
-		if ( g.vertex[v] != 0 && g.vertex_visit[v] == UNVISITED ) {
-			tarjans_visit(g, v);
-		}
-
+		tarjans_visit(g, v);
 	}
 
 }
@@ -173,7 +203,7 @@ int main(void) {
 	Graph g = new_graph(num_v, num_e);
 
 	// Applying algorithm
-	//tarjans(g);
+	tarjans(g);
 
 	// Writing our result
 	printf("%s\n", examine_graph(g));
