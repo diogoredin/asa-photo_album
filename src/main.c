@@ -10,7 +10,6 @@
 /*************************** Auxiliary functions ******************************/
 #define get_numbers(a, b) scanf("%d %d", a, b)
 
-
 /*********************** Visit States & Graph Status **************************/
 enum visitStates {
 	WHITE,
@@ -45,22 +44,30 @@ typedef struct graph {
 	int *vertex_visit;
 
 	// Stores the topological order of the graph
-	int *result;
+	Vertex *result;
 
 } Graph;
 
 // Connects two vertices in the Graph
 void connect_graph(Graph g, Vertex v1, Vertex v2) {
 
+	// Indexes the number of edges
+	int e = 0;
+	int n = 0;
+
 	// Vertex doesn't exist yet
 	if ( g.start_vertex[v1] == 0 ) {
-		g.start_vertex[v1] = v1;
-		g.end_vertex[v1] = v2;
+		g.start_vertex[v1] = e;
+		g.end_vertex[e] = v2;
 
 	// Vertex already exists
 	} else {
-		g.next_vertex[v1] = v2;
+		while ( g.next_vertex[n] != 0 ) { n++; }
+		g.next_vertex[n] = v2;
 	}
+
+	// Increments the number of edges
+	e++;
 
 }
 
@@ -81,9 +88,9 @@ Graph new_graph(int num_v, int num_e) {
 	g.vertex_visit = malloc(num_e * sizeof(unsigned char));
 
 	// Stores the topological order of the graph
-	g.result = malloc(num_v * sizeof(Vertex));
+	g.result = malloc( (num_v+1) * sizeof(Vertex) );
 
-	// Connects the given vertices
+	// Creates an edge between the given vertices
 	for (int i = 0; i < num_e; i++) {
 		int num1, num2;
 		get_numbers(&num1, &num2);
@@ -106,7 +113,13 @@ char *examine_graph(Graph g) {
 	} else if ( g.status == INSUFFICIENT ) {
 		return "Insuficiente";
 	} else {
-		return (char*) g.result;
+
+		// Goes through the result and displays it
+		for (int v = 1; v <= g.vertices; v++) {
+			printf("%d ", g.result[v]);
+		}
+
+		return "\n";
 	}
 
 }
@@ -118,9 +131,19 @@ char *examine_graph(Graph g) {
 // Tarjans auxiliary function
 void tarjans_visit(Graph g, Vertex v) {
 
-	// Apply for
-	//tarjans_visit(g, g.end_vertex[g.start_vertex[v]] );
-	//tarjans_visit(g, g.start_vertex[g.next_vertex[v]] );
+	if ( v != g.vertices ) {
+
+		if ( g.end_vertex[g.start_vertex[v]] != v ) {
+			tarjans_visit(g, g.end_vertex[g.start_vertex[v]] );
+		} else {
+			g.status = INCOHERENT;
+		}
+
+		if ( g.next_vertex[v] != 0 ) {
+			tarjans_visit(g, g.start_vertex[g.next_vertex[v]] );
+		}
+
+	}
 
 	g.vertex_visit[v] = BLACK;
 	g.result[v] = v;
@@ -130,7 +153,7 @@ void tarjans_visit(Graph g, Vertex v) {
 // Tarjans Algorithm
 void tarjans(Graph g) {
 
-	for (int v = 0; v < g.vertices; v++) {
+	for (int v = 1; v <= g.vertices; v++) {
 
 		if ( g.start_vertex[v] != 0 && g.vertex_visit[v] == WHITE ) {
 			tarjans_visit(g, v);
