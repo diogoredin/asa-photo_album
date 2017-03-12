@@ -32,14 +32,14 @@ enum graphStatus {
 // Graph Structure
 typedef struct graph {
 
-    int vertices;
+	int vertices;
 	int edges;
 	int status;
 
 	// Stores the start, end and next vertex of an edge
-	int *start_vertex;
-	int *end_vertex;
-	int *next_vertex;
+	Vertex *start_vertex;
+	Vertex *end_vertex;
+	Vertex *next_vertex;
 
 	// Stores the vertex visit state
 	int *vertex_visit;
@@ -70,9 +70,9 @@ Graph new_graph(int num_v, int num_e) {
 	g.edges = num_e;
 
 	// Stores the start, end and next vertex of an edge
-	g.start_vertex = calloc(num_v, sizeof(int));
-	g.end_vertex = malloc(num_e * sizeof(int));
-	g.next_vertex = malloc(num_e * sizeof(int));
+	g.start_vertex = calloc(num_v, sizeof(Vertex));
+	g.end_vertex = malloc(num_e * sizeof(Vertex));
+	g.next_vertex = malloc(num_e * sizeof(Vertex));
 
 	// Stores the vertex visit state
 	g.vertex_visit = malloc(num_e * sizeof(unsigned char));
