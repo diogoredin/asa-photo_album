@@ -28,7 +28,7 @@ enum graphStatus {
 #define Vertex int
 #define new_vertex(a) a
 
-// Node Structure
+// Edge Structure
 #define Edge int
 #define new_edge(a) a
 
