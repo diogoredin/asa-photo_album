@@ -47,8 +47,6 @@ typedef struct graph {
 // Connects two vertices in the Graph
 void connect_graph(Graph g, Vertex v1, Vertex v2) {
 
-	int node;
-
 	// Vertex doesn't exist yet
 	if ( g.vertex[v1] == 0 ) {
 
@@ -61,15 +59,16 @@ void connect_graph(Graph g, Vertex v1, Vertex v2) {
 	} else {
 
 		// Finds the first node with an available "next" position
-		for ( 
-			node = g.next_node[g.vertex[v1]]; 
-			node != 0;
-			node = g.next_node[node] );
+		int find_node;
+		for (
+			find_node = g.next_node[g.vertex[v1]]; 
+			find_node != 0;
+			find_node = g.next_node[find_node] );
 
 		// Creates a new node and stores it on the node found
 		g.node[g.edges] = v2;
 		g.next_node[g.edges] = 0;
-		g.next_node[node] = g.edges;
+		g.next_node[find_node] = g.edges;
 
 	}
 
