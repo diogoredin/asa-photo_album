@@ -135,8 +135,8 @@ char *examine_graph(Graph g) {
 	} else {
 
 		// Goes through the result and displays it
-		for (int v = 1; v <= g.vertices; v++) {
-			printf("%d ", g.result[v]);
+		for (int i = 0; i < g.vertices; i++) {
+			printf("%d ", g.result[i]);
 		}
 
 		return "\n";
@@ -149,7 +149,7 @@ char *examine_graph(Graph g) {
 /***************************** Tarjans Algorithm *****************************/
 
 // Tarjans auxiliary function
-void tarjans_visit(Graph g, Vertex v) {
+void tarjans_visit(Graph g, Vertex v, int count) {
 
 	Edge neighbour;
 
@@ -160,33 +160,21 @@ void tarjans_visit(Graph g, Vertex v) {
 		neighbour = g.next_edge[neighbour] ) {
 
 			// If they haven't been visited persues path and marks visit
-			if ( g.edge[neighbour] != GREY || g.edge[neighbour] != BLACK ) {
-				tarjans_visit(g, g.edge[neighbour]);
-				g.vertex_visit[v] = GREY;
-			}
-
-			// If they haven't been visited persues path
-			if ( g.edge[neighbour] == GREY ) {
-				g.status = INCOHERENT;
-			}
-
-			// If they haven't been visited persues path
-			if ( g.edge[neighbour] == BLACK ) {
-				g.status = INSUFFICIENT;
-			}
+			tarjans_visit(g, g.edge[neighbour], count++);
 
 		}
 
-	g.vertex_visit[v] = BLACK;
-	g.result[v] = v;
+	g.result[count] = v;
 
 }
 
 // Tarjans Algorithm
 void tarjans(Graph g) {
 
+	int count = 0;
+
 	for (int v = 1; v <= g.vertices; v++) {
-		tarjans_visit(g, v);
+		tarjans_visit(g, v, count++);
 	}
 
 }
