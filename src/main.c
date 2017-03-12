@@ -12,13 +12,16 @@
 
 
 /*********************** Visit States & Graph Status **************************/
-#define WHITE 0
-#define BLACK 1
-#define GREY 2
+enum visitStates {
+	WHITE,
+	BLACK,
+	GREY
+};
 
-#define INSUFFICIENT 0
-#define INCOHERENT 1
-#define OKAY 2
+enum graphStatus {
+	INSUFFICIENT,
+	INCOHERENT
+};
 
 /******************** Data structures and their "methods" *********************/
 
@@ -33,17 +36,13 @@ typedef struct graph {
 	int edges;
 	int status;
 
-	// Stores the vertices with an edge
-	int *vertices_connection_start;
+	// Stores the start, end and next vertex of an edge
+	int *start_vertex;
+	int *end_vertex;
+	int *next_vertex;
 
-	// Stores the end vertex of the edge
-	int *vertices_connection_end;
-
-	// Stores the end vertex of a next extra edge
-	int *vertices_next_connection_end;
-
-	// Stores the vertices visit state
-	int *vertices_visit;
+	// Stores the vertex visit state
+	int *vertex_visit;
 
 } Graph;
 
@@ -51,36 +50,13 @@ typedef struct graph {
 void connect_graph(Graph g, Vertex v1, Vertex v2) {
 
 	// Vertex does't exist yet
-	if ( g.vertices_connection_start[v1] == 0 ) {
-
-		// Can't loop to itself
-		if ( v1 != v2 ) {
-			g.vertices_connection_start[v1] = v1;
-			g.vertices_connection_end[v1] = v2;
-			g.status = OKAY;
-			// debug
-			printf("%d to %d (==) %d to %d created\n", v1, v2,
-			g.vertices_connection_start[v1], g.vertices_connection_end[v1]);
-
-		} else {
-			g.status = INSUFFICIENT;
-		}
+	if ( g.start_vertex[v1] == 0 ) {
+		g.start_vertex[v1] = v1;
+		g.end_vertex[v1] = v2;
 
 	// Vertex already exists
 	} else {
-
-		// Can't insert B->A if A->B
-		if ( g.vertices_connection_start[v1] != v2 ) {
-			g.vertices_next_connection_end[v1] = v2;
-			g.status = OKAY;
-			// debug
-			printf("%d to %d (==) %d to %d created\n", v1, v2,
-			g.vertices_connection_start[v1], g.vertices_next_connection_end[v1]);
-
-		} else {
-			g.status = INCOHERENT;
-		}
-
+		g.next_vertex[v1] = v2;
 	}
 
 }
@@ -88,22 +64,18 @@ void connect_graph(Graph g, Vertex v1, Vertex v2) {
 // Creates a new Graph
 Graph new_graph(int num_v, int num_e) {
 
+	// Graph Data
 	Graph g;
 	g.vertices = num_v;
 	g.edges = num_e;
-	g.status = INSUFFICIENT;
 
-	// Stores the vertices with an edge and initializes them at 0
-	g.vertices_connection_start = calloc(num_v, sizeof(int));
+	// Stores the start, end and next vertex of an edge
+	g.start_vertex = calloc(num_v, sizeof(int));
+	g.end_vertex = malloc(num_e * sizeof(int));
+	g.next_vertex = malloc(num_e * sizeof(int));
 
-	// Stores the end vertex of the edge
-	g.vertices_connection_end = malloc(num_e * sizeof(int));
-
-	// Stores the end vertex of a next extra edge
-	g.vertices_next_connection_end = malloc(num_e * sizeof(int));
-
-	// Stores the vertices visit state
-	g.vertices_visit = malloc(num_e * sizeof(unsigned char));
+	// Stores the vertex visit state
+	g.vertex_visit = malloc(num_e * sizeof(unsigned char));
 
 	// Connects the given Vertices
 	for (int i = 0; i < num_e; i++) {
@@ -127,14 +99,11 @@ char *examine_graph(Graph g) {
 		return "Incoerente";
 	} else if ( g.status == INSUFFICIENT ) {
 		return "Insuficiente";
-	} else if ( g.status ==  OKAY ) {
-		return "Okay";
-		// TODO: Loop through our graph and print each of its value in order
-
 	} else {
-		printf("%d", g.status);
-		return "Not Working";
+		// TODO: Loop through our graph and print each of its value in order
+		return "";
 	}
+
 }
 
 /************************ Algorithm-related functions *************************/
