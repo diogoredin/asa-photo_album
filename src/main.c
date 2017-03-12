@@ -44,12 +44,15 @@ typedef struct graph {
 	// Stores the vertex visit state
 	int *vertex_visit;
 
+	// Stores the topological order of the graph
+	int *result;
+
 } Graph;
 
 // Connects two vertices in the Graph
 void connect_graph(Graph g, Vertex v1, Vertex v2) {
 
-	// Vertex does't exist yet
+	// Vertex doesn't exist yet
 	if ( g.start_vertex[v1] == 0 ) {
 		g.start_vertex[v1] = v1;
 		g.end_vertex[v1] = v2;
@@ -77,7 +80,10 @@ Graph new_graph(int num_v, int num_e) {
 	// Stores the vertex visit state
 	g.vertex_visit = malloc(num_e * sizeof(unsigned char));
 
-	// Connects the given Vertices
+	// Stores the topological order of the graph
+	g.result = malloc(num_v * sizeof(Vertex));
+
+	// Connects the given vertices
 	for (int i = 0; i < num_e; i++) {
 		int num1, num2;
 		get_numbers(&num1, &num2);
@@ -100,16 +106,42 @@ char *examine_graph(Graph g) {
 	} else if ( g.status == INSUFFICIENT ) {
 		return "Insuficiente";
 	} else {
-		// TODO: Loop through our graph and print each of its value in order
-		return "";
+		return (char*) g.result;
 	}
 
 }
 
 /************************ Algorithm-related functions *************************/
-// TODO: Implement algorithm
+
+/***************************** Tarjans Algorithm *****************************/
+
+// Tarjans auxiliary function
+void tarjans_visit(Graph g, Vertex v) {
+
+	// Apply for
+	//tarjans_visit(g, g.end_vertex[g.start_vertex[v]] );
+	//tarjans_visit(g, g.start_vertex[g.next_vertex[v]] );
+
+	g.vertex_visit[v] = BLACK;
+	g.result[v] = v;
+
+}
+
+// Tarjans Algorithm
+void tarjans(Graph g) {
+
+	for (int v = 0; v < g.vertices; v++) {
+
+		if ( g.start_vertex[v] != 0 && g.vertex_visit[v] == WHITE ) {
+			tarjans_visit(g, v);
+		}
+
+	}
+
+}
 
 /***************************** MAIN function **********************************/
+
 int main(void) {
 
 	// Grabbing number of pictures (Vertices) and connections (Edges)
@@ -118,9 +150,9 @@ int main(void) {
 
 	// Initializing our graph
 	Graph g = new_graph(num_v, num_e);
-	
+
 	// Applying algorithm
-	// TODO: make function call to algorithm that receives our graph
+	tarjans(g);
 
 	// Writing our result
 	printf("%s\n", examine_graph(g));
