@@ -10,11 +10,13 @@
 /*************************** Auxiliary functions ******************************/
 #define get_numbers(a, b) scanf("%d %d", a, b)
 
+/****************************** Global Variables ******************************/
+int e = 0;
+
 /*********************** Visit States & Graph Status **************************/
 enum visitStates {
-	WHITE,
-	BLACK,
-	GREY
+	UNVISITED,
+	VISITED
 };
 
 enum graphStatus {
@@ -35,15 +37,12 @@ typedef struct graph {
 	int edges;
 	int status;
 
-	// Stores the start, end and next vertex of an edge
-	Vertex *start_vertex;
-	Vertex *end_vertex;
-	Vertex *next_vertex;
+	Vertex *vertex;
+	Vertex *node;
+	Vertex *next_node;
 
-	// Stores the vertex visit state
 	int *vertex_visit;
 
-	// Stores the topological order of the graph
 	Vertex *result;
 
 } Graph;
@@ -51,19 +50,36 @@ typedef struct graph {
 // Connects two vertices in the Graph
 void connect_graph(Graph g, Vertex v1, Vertex v2) {
 
-	// Indexes the number of edges
-	int e = 0;
+	int pos = 0;
 	int n = 0;
 
 	// Vertex doesn't exist yet
-	if ( g.start_vertex[v1] == 0 ) {
-		g.start_vertex[v1] = e;
-		g.end_vertex[e] = v2;
+	if ( g.vertex[v1] == 0 ) {
+
+		// Creates node e
+		g.vertex[v1] = e;
+		g.node[e] = v2;
+		g.next_node[e] = 0;
 
 	// Vertex already exists
 	} else {
-		while ( g.next_vertex[n] != 0 ) { n++; }
-		g.next_vertex[n] = v2;
+
+		// Finds an available position to write a new node
+		while ( g.node[pos] != 0 ) { pos++; }
+
+		// Gets the next node of the vertex
+		n = g.next_node[g.vertex[v1]];
+
+		// Finds the next available node
+		while ( n != 0 ) {
+			n = g.next_node[n];
+		}
+
+		// Creates the new node n and stores it on the appropriate node
+		g.next_node[n] = pos;
+		g.node[pos] = v2;
+		g.next_node[pos] = 0;
+
 	}
 
 	// Increments the number of edges
@@ -80,9 +96,9 @@ Graph new_graph(int num_v, int num_e) {
 	g.edges = num_e;
 
 	// Stores the start, end and next vertex of an edge
-	g.start_vertex = calloc(num_v, sizeof(Vertex));
-	g.end_vertex = malloc(num_e * sizeof(Vertex));
-	g.next_vertex = malloc(num_e * sizeof(Vertex));
+	g.vertex = calloc(num_v, sizeof(Vertex));
+	g.node = malloc(num_e * sizeof(Vertex));
+	g.next_node = malloc(num_e * sizeof(Vertex));
 
 	// Stores the vertex visit state
 	g.vertex_visit = malloc(num_e * sizeof(unsigned char));
@@ -133,19 +149,15 @@ void tarjans_visit(Graph g, Vertex v) {
 
 	if ( v != g.vertices ) {
 
-		if ( g.end_vertex[g.start_vertex[v]] != v ) {
-			tarjans_visit(g, g.end_vertex[g.start_vertex[v]] );
-		} else {
-			g.status = INCOHERENT;
-		}
+		tarjans_visit(g, g.node[g.vertex[v]] );
 
-		if ( g.next_vertex[v] != 0 ) {
-			tarjans_visit(g, g.start_vertex[g.next_vertex[v]] );
+		if ( g.next_node[v] != 0 ) {
+			tarjans_visit(g, g.node[g.next_node[v]] );
 		}
 
 	}
 
-	g.vertex_visit[v] = BLACK;
+	g.vertex_visit[v] = VISITED;
 	g.result[v] = v;
 
 }
@@ -155,7 +167,7 @@ void tarjans(Graph g) {
 
 	for (int v = 1; v <= g.vertices; v++) {
 
-		if ( g.start_vertex[v] != 0 && g.vertex_visit[v] == WHITE ) {
+		if ( g.vertex[v] != 0 && g.vertex_visit[v] == UNVISITED ) {
 			tarjans_visit(g, v);
 		}
 
