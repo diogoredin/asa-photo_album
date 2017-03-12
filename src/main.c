@@ -10,9 +10,6 @@
 /*************************** Auxiliary functions ******************************/
 #define get_numbers(a, b) scanf("%d %d", a, b)
 
-/****************************** Global Variables ******************************/
-int e = 0;
-
 /*********************** Visit States & Graph Status **************************/
 enum visitStates {
 	UNVISITED,
@@ -50,40 +47,31 @@ typedef struct graph {
 // Connects two vertices in the Graph
 void connect_graph(Graph g, Vertex v1, Vertex v2) {
 
-	int pos = 0;
-	int n = 0;
+	int node;
 
 	// Vertex doesn't exist yet
 	if ( g.vertex[v1] == 0 ) {
 
-		// Creates node e
-		g.vertex[v1] = e;
-		g.node[e] = v2;
-		g.next_node[e] = 0;
+		// Creates node
+		g.vertex[v1] = g.edges;
+		g.node[g.edges] = v2;
+		g.next_node[g.edges] = 0;
 
 	// Vertex already exists
 	} else {
 
-		// Finds an available position to write a new node
-		while ( g.node[pos] != 0 ) { pos++; }
+		// Finds the first node with an available "next" position
+		for ( 
+			node = g.next_node[g.vertex[v1]]; 
+			node != 0;
+			node = g.next_node[node] );
 
-		// Gets the next node of the vertex
-		n = g.next_node[g.vertex[v1]];
-
-		// Finds the next available node
-		while ( n != 0 ) {
-			n = g.next_node[n];
-		}
-
-		// Creates the new node n and stores it on the appropriate node
-		g.next_node[n] = pos;
-		g.node[pos] = v2;
-		g.next_node[pos] = 0;
+		// Creates a new node and stores it on the node found
+		g.node[g.edges] = v2;
+		g.next_node[g.edges] = 0;
+		g.next_node[node] = g.edges;
 
 	}
-
-	// Increments the number of edges
-	e++;
 
 }
 
@@ -93,7 +81,6 @@ Graph new_graph(int num_v, int num_e) {
 	// Graph Data
 	Graph g;
 	g.vertices = num_v;
-	g.edges = num_e;
 
 	// Stores the start, end and next vertex of an edge
 	g.vertex = calloc(num_v, sizeof(Vertex));
@@ -107,7 +94,7 @@ Graph new_graph(int num_v, int num_e) {
 	g.result = malloc( (num_v+1) * sizeof(Vertex) );
 
 	// Creates an edge between the given vertices
-	for (int i = 0; i < num_e; i++) {
+	for (g.edges = 0; g.edges < num_e; g.edges++) {
 		int num1, num2;
 		get_numbers(&num1, &num2);
 
@@ -151,7 +138,7 @@ void tarjans_visit(Graph g, Vertex v) {
 
 		tarjans_visit(g, g.node[g.vertex[v]] );
 
-		if ( g.next_node[v] != 0 ) {
+		if ( g.next_node[v] != 0 && g.vertex_visit[v] == UNVISITED ) {
 			tarjans_visit(g, g.node[g.next_node[v]] );
 		}
 
@@ -187,7 +174,7 @@ int main(void) {
 	Graph g = new_graph(num_v, num_e);
 
 	// Applying algorithm
-	tarjans(g);
+	//tarjans(g);
 
 	// Writing our result
 	printf("%s\n", examine_graph(g));
