@@ -140,9 +140,7 @@ char *examine_graph(Graph *g) {
 
 }
 
-/************************ Algorithm-related functions *************************/
-
-/***************************** Tarjans Algorithm *****************************/
+/***************************** Tarjans Algorithm ******************************/
 
 // Tarjans auxiliary function
 void tarjans_visit(Graph *g, Vertex v, int index) {
