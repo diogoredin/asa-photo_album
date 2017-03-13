@@ -151,7 +151,7 @@ void tarjans_visit(Graph *g, Vertex v, int index) {
 	int low_index = index;
 
 	// Marks Vertex as part of this Solution
-	g->vertex_visit[v] = BLACK;
+	g->vertex_visit[v] = GREY;
 
 	// Goes through all neighbours of the Vertex
 	for (
@@ -169,7 +169,7 @@ void tarjans_visit(Graph *g, Vertex v, int index) {
 			}
 
 			// Neighbour is part of the Solution
-			else if ( g->vertex_visit[v] == BLACK ) {
+			else if ( g->vertex_visit[v] == GREY ) {
 
 				// Stop!
 				low_index = min(low_index, index);
@@ -179,7 +179,7 @@ void tarjans_visit(Graph *g, Vertex v, int index) {
 		}
 
 	// Marks as visited
-	g->vertex_visit[v] = GREY;
+	g->vertex_visit[v] = BLACK;
 	g->result[index] = v;
 
 }
@@ -190,7 +190,7 @@ void tarjans(Graph *g) {
 	int index = 0;
 
 	for (int v = 1; v <= g->vertices; v++) {
-		if ( g->vertex_visit[v] == WHITE || g->vertex_visit[v] == BLACK ) {
+		if ( g->vertex_visit[v] == WHITE || g->vertex_visit[v] == GREY ) {
 			tarjans_visit(g, v, index++);
 		}
 	}
