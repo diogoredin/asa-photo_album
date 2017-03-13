@@ -12,9 +12,8 @@
 
 /*********************** Visit States & Graph Status **************************/
 enum visitStates {
-	WHITE,
-	GREY,
-	BLACK
+	UNVISITED,
+	VISITED
 };
 
 enum graphStatus {
@@ -107,7 +106,7 @@ Graph new_graph(int num_v, int num_e) {
 	g.vertex = calloc(num_v, sizeof(Vertex));
 	g.edge = malloc(num_e * sizeof(Edge));
 	g.next_edge = malloc(num_e * sizeof(Edge));
-	g.vertex_visit = malloc(num_e * sizeof(unsigned char));
+	g.vertex_visit = calloc(num_v, sizeof(int));
 	g.result = malloc( (num_v+1) * sizeof(Vertex) );
 
 	// Creates an Edge between the Given Vertices
@@ -153,18 +152,26 @@ void tarjans_visit(Graph g, Vertex v, int count) {
 
 	Edge neighbour;
 
-	// Goes through all neighbours of the Vertex
-	for (
-		neighbour = g.next_edge[g.vertex[v]]; 
-		neighbour != 0;
-		neighbour = g.next_edge[neighbour] ) {
+	if ( g.vertex_visit[v] == UNVISITED ) {
+		
+		// Goes through all neighbours of the Vertex
+		for (
+			neighbour = g.next_edge[g.vertex[v]]; 
+			neighbour != 0;
+			neighbour = g.next_edge[neighbour] ) {
 
-			// If they haven't been visited persues path and marks visit
-			tarjans_visit(g, g.edge[neighbour], count++);
+				// Persues Path
+				tarjans_visit(g, g.edge[neighbour], count++);
 
-		}
-
-	g.result[count] = v;
+			}
+	
+		// Marks as visited
+		g.vertex_visit[v] = VISITED;
+		g.result[count] = v;
+	
+	} else {
+		g.status = INCOHERENT;
+	}
 
 }
 
