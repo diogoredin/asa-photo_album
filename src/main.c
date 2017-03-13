@@ -29,6 +29,9 @@ enum graphStatus {
 // Vertex Structure
 typedef int Vertex;
 #define new_vertex(a) a
+#define next_vertex(a) a+1
+#define visit(graph, vertex) (graph->vertex_visit[vertex] = BLACK)
+#define is_visited(graph, vertex) (graph->vertex_visit[vertex] == BLACK)
 
 // Edge Structure
 typedef int Edge;
@@ -160,18 +163,12 @@ void tarjans_visit(Graph *g, Vertex v, int index) {
 		neighbour = g->next_edge[neighbour] ) {
 
 			// Neighbour hasn't been visited
-			if ( g->vertex_visit[v] == WHITE ) {
+			if ( !is_visited(g, v) ) {
 
-				// Persues Path
-				tarjans_visit(g, g->edge[neighbour], index++);
-				low_index = min(low_index, index);
-
-			}
-
-			// Neighbour is part of the Solution
-			else if ( g->vertex_visit[v] == GREY ) {
-
-				// Stop!
+				// Pursues Path if neighbour is part of the Solution
+				if ( g->vertex_visit[v] == WHITE ) {
+					tarjans_visit(g, g->edge[neighbour], index++);
+				}
 				low_index = min(low_index, index);
 
 			}
@@ -179,7 +176,7 @@ void tarjans_visit(Graph *g, Vertex v, int index) {
 		}
 
 	// Marks as visited
-	g->vertex_visit[v] = BLACK;
+	visit(g, v);
 	g->result[index] = v;
 
 }
@@ -189,8 +186,8 @@ void tarjans(Graph *g) {
 
 	int index = 0;
 
-	for (int v = 1; v <= g->vertices; v++) {
-		if ( g->vertex_visit[v] == WHITE || g->vertex_visit[v] == GREY ) {
+	for (Vertex v = 1; v <= g->vertices; v = next_vertex(v)) {
+		if ( !is_visited(g, v) ) {
 			tarjans_visit(g, v, index++);
 		}
 	}
