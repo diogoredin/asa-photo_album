@@ -14,13 +14,13 @@
 
 /*********************** Visit States & Graph Status **************************/
 enum visitStates {
-	WHITE,
+	WHITE = 0,
 	GREY,
 	BLACK
 };
 
 enum graphStatus {
-	INSUFFICIENT,
+	INSUFFICIENT = 0,
 	INCOHERENT
 };
 
@@ -55,24 +55,23 @@ typedef struct graph {
 	Edge *next_edge;
 
 	// Stores the Visit States of the Vertices and the Topological Order of the Graph
-	int *vertex_visit;
+	unsigned char *vertex_visit;
 	Vertex *result;
 
 } Graph;
 
 // Connects two vertices in the Graph
-void connect_graph(Graph g, Vertex orig, Vertex dest) {
+void connect_graph(Graph *g, Vertex orig, Vertex dest) {
 
 	// Vertex without any Edge
-	if ( g.vertex[orig] == 0 ) {
+	if ( g->vertex[orig] == 0 ) {
 
 		// Creates Edge (orig -> dest)
 		Edge edge = new_edge(dest);
 
 		// Stores it on the Vertex array
-		g.vertex[orig] = g.edges;
-		g.edge[g.edges] = edge;
-		g.next_edge[g.edges] = 0;
+		g->vertex[orig] = g->edges;
+		g->edge[g->edges] = edge;
 
 	// Vertex with One or More Edges
 	} else {
@@ -82,17 +81,16 @@ void connect_graph(Graph g, Vertex orig, Vertex dest) {
 
 		// Finds the first Edge with an available "next" edge position
 		for (
-			find_edge = g.next_edge[g.vertex[orig]]; 
+			find_edge = g->next_edge[g->vertex[orig]]; 
 			find_edge != 0;
-			find_edge = g.next_edge[find_edge] );
+			find_edge = g->next_edge[find_edge] );
 
 		// Creates Edge (orig -> dest)
 		Edge edge = new_edge(dest);
 	
 		// Stores it on the Edge Found
-		g.edge[g.edges] = edge;
-		g.next_edge[g.edges] = 0;
-		g.next_edge[find_edge] = g.edges;
+		g->edge[g->edges] = edge;
+		g->next_edge[find_edge] = g->edges;
 
 	}
 
@@ -106,11 +104,11 @@ Graph new_graph(int num_v, int num_e) {
 	g.vertices = num_v;
 
 	// Allocates Space for our Data Structures
-	g.vertex = calloc(num_v, sizeof(Vertex));
-	g.edge = malloc(num_e * sizeof(Edge));
-	g.next_edge = malloc(num_e * sizeof(Edge));
-	g.vertex_visit = calloc(num_v, sizeof(int));
-	g.result = malloc( (num_v+1) * sizeof(Vertex) );
+	g.vertex = calloc(num_v, sizeof(g.vertex));
+	g.edge = malloc(num_e * sizeof(g.edge));
+	g.next_edge = calloc(num_e, sizeof(g.next_edge));
+	g.vertex_visit = calloc(num_v, sizeof(g.vertex_visit));
+	g.result = malloc( (num_v+1) * sizeof(g.result) );
 
 	// Creates an Edge between the Given Vertices
 	for (g.edges = 0; g.edges < num_e; g.edges++) {
@@ -119,26 +117,25 @@ Graph new_graph(int num_v, int num_e) {
 
 		Vertex orig = new_vertex(num1);
 		Vertex dest = new_vertex(num2);
-		connect_graph(g, orig, dest);
+		connect_graph(&g, orig, dest);
 	}
 
 	return g;
 }
 
 // Examines a given graph and either returns an error message, or prints the graph
-char *examine_graph(Graph g) {
-	//if (g == NULL) { return "Nulo"; }
+char *examine_graph(Graph *g) {
 
 	// Checks graph's status and write the appropriate message
-	if ( g.status == INCOHERENT ) {
+	if ( g->status == INCOHERENT ) {
 		return "Incoerente";
-	} else if ( g.status == INSUFFICIENT ) {
+	} else if ( g->status == INSUFFICIENT ) {
 		return "Insuficiente";
 	} else {
 
 		// Goes through the result and displays it
-		for (int i = 0; i < g.vertices; i++) {
-			printf("%d ", g.result[i]);
+		for (int i = 0; i < g->vertices; i++) {
+			printf("%d ", g->result[i]);
 		}
 
 		return "\n";
@@ -151,7 +148,7 @@ char *examine_graph(Graph g) {
 /***************************** Tarjans Algorithm *****************************/
 
 // Tarjans auxiliary function
-void tarjans_visit(Graph g, Vertex v, int index) {
+void tarjans_visit(Graph *g, Vertex v, int index) {
 
 	Edge neighbour;
 
@@ -159,25 +156,25 @@ void tarjans_visit(Graph g, Vertex v, int index) {
 	int low_index = index;
 
 	// Marks Vertex as part of this Solution
-	g.vertex_visit[v] = BLACK;
+	g->vertex_visit[v] = BLACK;
 
 	// Goes through all neighbours of the Vertex
 	for (
-		neighbour = g.next_edge[g.vertex[v]]; 
+		neighbour = g->next_edge[g->vertex[v]]; 
 		neighbour != 0;
-		neighbour = g.next_edge[neighbour] ) {
+		neighbour = g->next_edge[neighbour] ) {
 
 			// Neighbour hasn't been visited
-			if ( g.vertex_visit[v] == WHITE ) {
+			if ( g->vertex_visit[v] == WHITE ) {
 	
 				// Persues Path
-				tarjans_visit(g, g.edge[neighbour], index++);
+				tarjans_visit(g, g->edge[neighbour], index++);
 				low_index = min(low_index, index);
 
 			}
 
 			// Neighbour is part of the Solution
-			else if ( g.vertex_visit[v] == BLACK ) {
+			else if ( g->vertex_visit[v] == BLACK ) {
 
 				// Stop!
 				low_index = min(low_index, index);
@@ -187,18 +184,18 @@ void tarjans_visit(Graph g, Vertex v, int index) {
 		}
 	
 	// Marks as visited
-	g.vertex_visit[v] = GREY;
-	g.result[index] = v;
+	g->vertex_visit[v] = GREY;
+	g->result[index] = v;
 
 }
 
 // Tarjans Algorithm
-void tarjans(Graph g) {
+void tarjans(Graph *g) {
 
 	int index = 0;
 
-	for (int v = 1; v <= g.vertices; v++) {
-		if ( g.vertex_visit[v] == WHITE || g.vertex_visit[v] == BLACK ) {
+	for (int v = 1; v <= g->vertices; v++) {
+		if ( g->vertex_visit[v] == WHITE || g->vertex_visit[v] == BLACK ) {
 			tarjans_visit(g, v, index++);
 		}
 	}
@@ -217,10 +214,10 @@ int main(void) {
 	Graph g = new_graph(num_v, num_e);
 
 	// Applying algorithm
-	tarjans(g);
+	tarjans(&g);
 
 	// Writing our result
-	printf("%s\n", examine_graph(g));
+	printf("%s\n", examine_graph(&g));
 
 	return 0;
 }
