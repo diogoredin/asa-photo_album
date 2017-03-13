@@ -81,13 +81,13 @@ void connect_graph(Graph *g, Vertex orig, Vertex dest) {
 
 		// Finds the first Edge with an available "next" edge position
 		for (
-			find_edge = g->next_edge[g->vertex[orig]]; 
+			find_edge = g->next_edge[g->vertex[orig]];
 			find_edge != 0;
 			find_edge = g->next_edge[find_edge] );
 
 		// Creates Edge (orig -> dest)
 		Edge edge = new_edge(dest);
-	
+
 		// Stores it on the Edge Found
 		g->edge[g->edges] = edge;
 		g->next_edge[find_edge] = g->edges;
@@ -138,7 +138,7 @@ char *examine_graph(Graph *g) {
 			printf("%d ", g->result[i]);
 		}
 
-		return "\n";
+		return "";
 	}
 
 }
@@ -160,13 +160,13 @@ void tarjans_visit(Graph *g, Vertex v, int index) {
 
 	// Goes through all neighbours of the Vertex
 	for (
-		neighbour = g->next_edge[g->vertex[v]]; 
+		neighbour = g->next_edge[g->vertex[v]];
 		neighbour != 0;
 		neighbour = g->next_edge[neighbour] ) {
 
 			// Neighbour hasn't been visited
 			if ( g->vertex_visit[v] == WHITE ) {
-	
+
 				// Persues Path
 				tarjans_visit(g, g->edge[neighbour], index++);
 				low_index = min(low_index, index);
@@ -182,7 +182,7 @@ void tarjans_visit(Graph *g, Vertex v, int index) {
 			}
 
 		}
-	
+
 	// Marks as visited
 	g->vertex_visit[v] = GREY;
 	g->result[index] = v;
