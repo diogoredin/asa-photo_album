@@ -27,11 +27,11 @@ enum graphStatus {
 /******************** Data structures and their "methods" *********************/
 
 // Vertex Structure
-#define Vertex int
+typedef int Vertex;
 #define new_vertex(a) a
 
 // Edge Structure
-#define Edge int
+typedef int Edge;
 #define new_edge(a) a
 
 // Graph Structure
