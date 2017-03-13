@@ -9,11 +9,14 @@
 
 /*************************** Auxiliary functions ******************************/
 #define get_numbers(a, b) scanf("%d %d", a, b)
+#define max(a,b) ((a) > (b) ? a : b)
+#define min(a,b) ((a) < (b) ? a : b)
 
 /*********************** Visit States & Graph Status **************************/
 enum visitStates {
-	UNVISITED,
-	VISITED
+	WHITE,
+	GREY,
+	BLACK
 };
 
 enum graphStatus {
@@ -148,40 +151,56 @@ char *examine_graph(Graph g) {
 /***************************** Tarjans Algorithm *****************************/
 
 // Tarjans auxiliary function
-void tarjans_visit(Graph g, Vertex v, int count) {
+void tarjans_visit(Graph g, Vertex v, int index) {
 
 	Edge neighbour;
 
-	if ( g.vertex_visit[v] == UNVISITED ) {
-		
-		// Goes through all neighbours of the Vertex
-		for (
-			neighbour = g.next_edge[g.vertex[v]]; 
-			neighbour != 0;
-			neighbour = g.next_edge[neighbour] ) {
+	// Stores the Vertex Index
+	int low_index = index;
 
+	// Marks Vertex as part of this Solution
+	g.vertex_visit[v] = BLACK;
+
+	// Goes through all neighbours of the Vertex
+	for (
+		neighbour = g.next_edge[g.vertex[v]]; 
+		neighbour != 0;
+		neighbour = g.next_edge[neighbour] ) {
+
+			// Neighbour hasn't been visited
+			if ( g.vertex_visit[v] == WHITE ) {
+	
 				// Persues Path
-				tarjans_visit(g, g.edge[neighbour], count++);
+				tarjans_visit(g, g.edge[neighbour], index++);
+				low_index = min(low_index, index);
 
 			}
+
+			// Neighbour is part of the Solution
+			else if ( g.vertex_visit[v] == BLACK ) {
+
+				// Stop!
+				low_index = min(low_index, index);
+
+			}
+
+		}
 	
-		// Marks as visited
-		g.vertex_visit[v] = VISITED;
-		g.result[count] = v;
-	
-	} else {
-		g.status = INCOHERENT;
-	}
+	// Marks as visited
+	g.vertex_visit[v] = GREY;
+	g.result[index] = v;
 
 }
 
 // Tarjans Algorithm
 void tarjans(Graph g) {
 
-	int count = 0;
+	int index = 0;
 
 	for (int v = 1; v <= g.vertices; v++) {
-		tarjans_visit(g, v, count++);
+		if ( g.vertex_visit[v] == WHITE || g.vertex_visit[v] == BLACK ) {
+			tarjans_visit(g, v, index++);
+		}
 	}
 
 }
