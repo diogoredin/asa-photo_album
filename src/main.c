@@ -97,30 +97,27 @@ void connect_graph(Graph *g, Vertex orig, Vertex dest) {
 }
 
 // Creates a new Graph
-Graph new_graph(int num_v, int num_e) {
+void init_graph(Graph *g, int num_v, int num_e) {
 
 	// Graph Properties
-	Graph g;
-	g.vertices = num_v;
+	g->vertices = num_v;
 
-	// Allocates Space for our Data Structures
-	g.vertex = calloc(num_v, sizeof(g.vertex));
-	g.edge = malloc(num_e * sizeof(g.edge));
-	g.next_edge = calloc(num_e, sizeof(g.next_edge));
-	g.vertex_visit = calloc(num_v, sizeof(g.vertex_visit));
-	g.result = malloc( (num_v+1) * sizeof(g.result) );
+	// Allocates memory for our Data Structures
+	g->vertex       = calloc(num_v, sizeof(g->vertex));
+	g->edge         = malloc(num_e * sizeof(g->edge));
+	g->next_edge    = calloc(num_e, sizeof(g->next_edge));
+	g->vertex_visit = calloc(num_v, sizeof(g->vertex_visit));
+	g->result       = malloc((num_v+1) * sizeof(g->result));
 
-	// Creates an Edge between the Given Vertices
-	for (g.edges = 0; g.edges < num_e; g.edges++) {
+	// Creates an Edge between the given Vertices
+	for (g->edges = 0; g->edges < num_e; g->edges++) {
 		int num1, num2;
 		get_numbers(&num1, &num2);
 
 		Vertex orig = new_vertex(num1);
 		Vertex dest = new_vertex(num2);
-		connect_graph(&g, orig, dest);
+		connect_graph(g, orig, dest);
 	}
-
-	return g;
 }
 
 // Examines a given graph and either returns an error message, or prints the graph
@@ -211,7 +208,8 @@ int main(void) {
 	get_numbers(&num_v, &num_e);
 
 	// Initializing our graph
-	Graph g = new_graph(num_v, num_e);
+	Graph g;
+	init_graph(&g, num_v, num_e);
 
 	// Applying algorithm
 	tarjans(&g);
