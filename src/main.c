@@ -118,8 +118,8 @@ void init_graph(Graph *g, int num_v, int num_e) {
 	g->edge         = malloc(num_e * sizeof(g->edge));
 	g->next_edge    = calloc(num_e, sizeof(g->next_edge));
 	g->vertex_visit = calloc(num_v, sizeof(g->vertex_visit));
-	g->vertex_time = calloc(num_v, sizeof(g->vertex_time));
-	g->vertex_low = calloc(num_v, sizeof(g->vertex_low));
+	g->vertex_time  = calloc(num_v, sizeof(g->vertex_time));
+	g->vertex_low   = calloc(num_v, sizeof(g->vertex_low));
 	g->result       = malloc((num_v+1) * sizeof(g->result));
 
 	// Creates an Edge between the given Vertices
@@ -163,7 +163,7 @@ void tarjans_visit(Graph *g, Vertex u, int* visited) {
 	// Marks Vertex as part of this Solution
 	g->vertex_visit[u] = GREY;
 	g->vertex_time[u] = *visited;
-	g->vertex_low[u] = *visited;
+	g->vertex_low[u]  = *visited;
 
 	// One Vertex Visited
 	(*visited)++;
@@ -181,14 +181,14 @@ void tarjans_visit(Graph *g, Vertex u, int* visited) {
 				if ( g->vertex_visit[v] == WHITE ) {
 					tarjans_visit(g, g->edge[v], visited);
 				}
-				g->vertex_low[u] = min(	g->vertex_low[v], 
+				g->vertex_low[u] = min(	g->vertex_low[v],
 										g->vertex_low[u] );
 
 			}
 
 		}
-	
-	printf("visited (%d): %d\n time: %d\n low: %d\n", 
+
+	printf("visited (%d): %d\n time: %d\n low: %d\n",
 	u, *visited, g->vertex_time[u], g->vertex_low[u]);
 
 	// If time of discovery = time of the lowest its SCC
