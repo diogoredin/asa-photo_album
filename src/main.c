@@ -102,17 +102,17 @@ void init_graph(Graph *g, int num_v, int num_e) {
 	g->vertices = num_v;
 
 	// Allocates memory for our Data Structures
-	g->first_edge          = calloc(num_v+1, sizeof(g->first_edge));
-	g->vertex            = malloc(num_e * sizeof(g->vertex));
-	g->next_edge       = calloc(num_e, sizeof(g->next_edge));
+	g->first_edge      = calloc(num_v+1, sizeof(g->first_edge));
+	g->vertex          = malloc(num_e+1 *sizeof(g->vertex));
+	g->next_edge       = calloc(num_e+1, sizeof(g->next_edge));
 	g->vertex_visit    = calloc(num_v+1, sizeof(g->vertex_visit));
 	g->vertex_discover = calloc(num_v+1, sizeof(g->vertex_discover));
 	g->vertex_finish   = calloc(num_v+1, sizeof(g->vertex_finish));
 	g->vertex_pi       = calloc(num_v+1, sizeof(g->vertex_pi));
-	g->result          = malloc(num_v * sizeof(g->result));
+	g->result          = malloc(num_v  * sizeof(g->result));
 
 	// Creates an Edge between the given Vertices
-	for (g->edges = 0; g->edges < num_e; g->edges++) {
+	for (g->edges = 1; g->edges <= num_e; g->edges++) {
 		int num1, num2;
 		get_numbers(&num1, &num2);
 
@@ -156,7 +156,6 @@ void dfs_visit(Graph *g, Vertex u, int *visited) {
 
 	for (Edge find_edge = g->first_edge[u]; find_edge != 0; find_edge = g->next_edge[find_edge]) {
 		Vertex v = g->vertex[find_edge];
-		printf("Visiting d[%d] = %d\n", v, *visited);
 		if (g->vertex_visit[v] == WHITE) {
 			g->vertex_pi[v] = u;
 			dfs_visit(g, v, visited);
