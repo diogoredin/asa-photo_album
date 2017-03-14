@@ -114,12 +114,12 @@ void init_graph(Graph *g, int num_v, int num_e) {
 	g->vertices = num_v;
 
 	// Allocates memory for our Data Structures
-	g->vertex       = calloc(num_v, sizeof(g->vertex));
+	g->vertex       = calloc(num_v+1, sizeof(g->vertex));
 	g->edge         = malloc(num_e * sizeof(g->edge));
 	g->next_edge    = calloc(num_e, sizeof(g->next_edge));
-	g->vertex_visit = calloc(num_v, sizeof(g->vertex_visit));
-	g->vertex_time  = calloc(num_v, sizeof(g->vertex_time));
-	g->vertex_low   = calloc(num_v, sizeof(g->vertex_low));
+	g->vertex_visit = calloc(num_v+1, sizeof(g->vertex_visit));
+	g->vertex_time  = calloc(num_v+1, sizeof(g->vertex_time));
+	g->vertex_low   = calloc(num_v+1, sizeof(g->vertex_low));
 	g->result       = malloc((num_v+1) * sizeof(g->result));
 
 	// Creates an Edge between the given Vertices
