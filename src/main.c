@@ -9,7 +9,6 @@
 
 /*************************** Auxiliary functions ******************************/
 #define get_numbers(a, b) scanf("%d %d", a, b)
-#define max(a,b) ((a) > (b) ? a : b)
 #define min(a,b) ((a) < (b) ? a : b)
 
 /*********************** Visit States & Graph Status **************************/
@@ -20,7 +19,8 @@ enum visitStates {
 };
 
 enum graphStatus {
-	INSUFFICIENT = 0,
+	CORRECT = 0,
+	INSUFFICIENT,
 	INCOHERENT
 };
 
@@ -57,8 +57,16 @@ typedef struct graph {
 	// Next_Edge[Index] -> Contains the number of another edge that has the same origin
 	Edge *next_edge;
 
-	// Stores the Visit States of the Vertices and the Topological Order of the Graph
+	// Visit States of the Vertices (size: nr. of vertices)
 	unsigned char *vertex_visit;
+
+	// Discovery Times of the Vertices (size: nr. of vertices)
+	int *vertex_time;
+
+	// First Vertex in the current DFS Link Search (size: nr. of vertices)
+	int *vertex_low;
+
+	// Topological Order of the Graph (size: nr. of vertices)
 	Vertex *result;
 
 } Graph;
@@ -110,6 +118,8 @@ void init_graph(Graph *g, int num_v, int num_e) {
 	g->edge         = malloc(num_e * sizeof(g->edge));
 	g->next_edge    = calloc(num_e, sizeof(g->next_edge));
 	g->vertex_visit = calloc(num_v, sizeof(g->vertex_visit));
+	g->vertex_time = calloc(num_v, sizeof(g->vertex_time));
+	g->vertex_low = calloc(num_v, sizeof(g->vertex_low));
 	g->result       = malloc((num_v+1) * sizeof(g->result));
 
 	// Creates an Edge between the given Vertices
@@ -134,7 +144,7 @@ char *examine_graph(Graph *g) {
 	} else {
 
 		// Goes through the result and displays it
-		for (int i = 0; i < g->vertices; i++) {
+		for (int i = 1; i <= g->vertices; i++) {
 			printf("%d ", g->result[i]);
 		}
 
@@ -146,49 +156,57 @@ char *examine_graph(Graph *g) {
 /***************************** Tarjans Algorithm ******************************/
 
 // Tarjans auxiliary function
-void tarjans_visit(Graph *g, Vertex v, int index) {
+void tarjans_visit(Graph *g, Vertex u, int* visited) {
 
-	Edge neighbour;
-
-	// Stores the Vertex Index
-	int low_index = index;
+	Edge v;
 
 	// Marks Vertex as part of this Solution
-	g->vertex_visit[v] = GREY;
+	g->vertex_visit[u] = GREY;
+	g->vertex_time[u] = *visited;
+	g->vertex_low[u] = *visited;
+
+	// One Vertex Visited
+	(*visited)++;
 
 	// Goes through all neighbours of the Vertex
 	for (
-		neighbour = g->next_edge[g->vertex[v]];
-		neighbour != 0;
-		neighbour = g->next_edge[neighbour] ) {
+		v = g->next_edge[g->vertex[u]];
+		v != 0;
+		v = g->next_edge[v] ) {
 
 			// Neighbour hasn't been visited
 			if ( !is_visited(g, v) ) {
 
 				// Pursues Path if neighbour is part of the Solution
 				if ( g->vertex_visit[v] == WHITE ) {
-					tarjans_visit(g, g->edge[neighbour], index++);
+					tarjans_visit(g, g->edge[v], visited);
 				}
-				low_index = min(low_index, index);
+				g->vertex_low[u] = min(	g->vertex_low[v], 
+										g->vertex_low[u] );
 
 			}
 
 		}
+	
+	printf("visited (%d): %d\n time: %d\n low: %d\n", 
+	u, *visited, g->vertex_time[u], g->vertex_low[u]);
 
-	// Marks as visited
-	visit(g, v);
-	g->result[index] = v;
+	// If time of discovery = time of the lowest its SCC
+	if ( g->vertex_time[u] == g->vertex_low[u] ) {
+		visit(g, u);
+		g->result[*visited] = u;
+	}
 
 }
 
 // Tarjans Algorithm
 void tarjans(Graph *g) {
 
-	int index = 0;
+	int visited = 0;
 
 	for (Vertex v = 1; v <= g->vertices; v = next_vertex(v)) {
 		if ( !is_visited(g, v) ) {
-			tarjans_visit(g, v, index++);
+			tarjans_visit(g, v, &visited);
 		}
 	}
 
