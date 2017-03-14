@@ -46,25 +46,28 @@ typedef struct graph {
 	int status;
 
 	// Vertex Index -> Is the number of the vertex of origin
-	// Vertex[Index] -> Contains the number of the edge
-	Vertex *vertex;
+	// first_edge[vertex] -> Contains the number of the edge
+	Edge *first_edge;
 
 	// Edge Index -> Is the number of the edge
-	// Edge[Index] -> Contains the number of the vertex of destination
-	Edge *edge;
+	// vertex[edge] -> Contains the number of the vertex of destination
+	Vertex *vertex;
 
 	// Next_Edge Index -> Is the number of the edge
-	// Next_Edge[Index] -> Contains the number of another edge that has the same origin
+	// Next_Edge[vertex] -> Contains the number of another edge that has the same origin
 	Edge *next_edge;
 
 	// Visit States of the Vertices (size: nr. of vertices)
 	unsigned char *vertex_visit;
 
 	// Discovery Times of the Vertices (size: nr. of vertices)
-	int *vertex_time;
+	int *vertex_discover;
 
 	// First Vertex in the current DFS Link Search (size: nr. of vertices)
-	int *vertex_low;
+	int *vertex_finish;
+
+	// An index corresponds to its predecessor
+	Vertex *vertex_pi;
 
 	// Topological Order of the Graph (size: nr. of vertices)
 	Vertex *result;
@@ -73,54 +76,40 @@ typedef struct graph {
 
 // Connects two vertices in the Graph
 void connect_graph(Graph *g, Vertex orig, Vertex dest) {
-
 	// Vertex without any Edge
-	if ( g->vertex[orig] == 0 ) {
-
-		// Creates Edge (orig -> dest)
-		Edge edge = new_edge(dest);
-
+	if ( g->first_edge[orig] == 0 ) {
 		// Stores it on the Vertex array
-		g->vertex[orig] = g->edges;
-		g->edge[g->edges] = edge;
+		g->first_edge[orig] = g->edges;
+		g->vertex[g->edges] = dest;
 
 	// Vertex with One or More Edges
 	} else {
-
 		// Last Edge created for this Vertex
-		Edge find_edge;
+		Edge find_edge = g->first_edge[orig];
 
-		// Finds the first Edge with an available "next" edge position
-		for (
-			find_edge = g->next_edge[g->vertex[orig]];
-			find_edge != 0;
-			find_edge = g->next_edge[find_edge] );
-
-		// Creates Edge (orig -> dest)
-		Edge edge = new_edge(dest);
+		// Finds the vertex Edge with an available "next" edge position
+		for (; g->next_edge[find_edge] != 0; find_edge = g->next_edge[find_edge]);
 
 		// Stores it on the Edge Found
-		g->edge[g->edges] = edge;
+		g->vertex[g->edges] = dest;
 		g->next_edge[find_edge] = g->edges;
-
 	}
-
 }
 
 // Creates a new Graph
 void init_graph(Graph *g, int num_v, int num_e) {
-
 	// Graph Properties
 	g->vertices = num_v;
 
 	// Allocates memory for our Data Structures
-	g->vertex       = calloc(num_v+1, sizeof(g->vertex));
-	g->edge         = malloc(num_e * sizeof(g->edge));
-	g->next_edge    = calloc(num_e, sizeof(g->next_edge));
-	g->vertex_visit = calloc(num_v+1, sizeof(g->vertex_visit));
-	g->vertex_time  = calloc(num_v+1, sizeof(g->vertex_time));
-	g->vertex_low   = calloc(num_v+1, sizeof(g->vertex_low));
-	g->result       = malloc((num_v+1) * sizeof(g->result));
+	g->first_edge          = calloc(num_v+1, sizeof(g->first_edge));
+	g->vertex            = malloc(num_e * sizeof(g->vertex));
+	g->next_edge       = calloc(num_e, sizeof(g->next_edge));
+	g->vertex_visit    = calloc(num_v+1, sizeof(g->vertex_visit));
+	g->vertex_discover = calloc(num_v+1, sizeof(g->vertex_discover));
+	g->vertex_finish   = calloc(num_v+1, sizeof(g->vertex_finish));
+	g->vertex_pi       = calloc(num_v+1, sizeof(g->vertex_pi));
+	g->result          = malloc(num_v * sizeof(g->result));
 
 	// Creates an Edge between the given Vertices
 	for (g->edges = 0; g->edges < num_e; g->edges++) {
@@ -136,6 +125,11 @@ void init_graph(Graph *g, int num_v, int num_e) {
 // Examines a given graph and either returns an error message, or prints the graph
 const char *examine_graph(Graph *g) {
 
+	// Goes through the result and displays it
+	for (Vertex u = 1; u <= g->vertices; u = next_vertex(u)) {
+		printf("VERTEX = %d;\n DISCOVER TIME = %d;\n FINISH TIME = %d;\n", u, g->vertex_discover[u], g->vertex_finish[u]);
+	}
+
 	// Checks graph's status and write the appropriate message
 	if ( g->status == INCOHERENT ) {
 		return "Incoerente";
@@ -144,7 +138,7 @@ const char *examine_graph(Graph *g) {
 	} else {
 
 		// Goes through the result and displays it
-		for (int i = 1; i <= g->vertices; i++) {
+		for (int i = 0; i < g->vertices; i++) {
 			printf("%d ", g->result[i]);
 		}
 
@@ -153,63 +147,34 @@ const char *examine_graph(Graph *g) {
 
 }
 
-/***************************** Tarjans Algorithm ******************************/
+/***************************** DFS Algorithm ******************************/
+int result_index = 0;
 
-// Tarjans auxiliary function
-void tarjans_visit(Graph *g, Vertex u, int* visited) {
-
-	Edge v;
-
-	// Marks Vertex as part of this Solution
+void dfs_visit(Graph *g, Vertex u, int *visited) {
 	g->vertex_visit[u] = GREY;
-	g->vertex_time[u] = *visited;
-	g->vertex_low[u]  = *visited;
+	g->vertex_discover[u] = ++(*visited);
 
-	// One Vertex Visited
-	(*visited)++;
-
-	// Goes through all neighbours of the Vertex
-	for (
-		v = g->next_edge[g->vertex[u]];
-		v != 0;
-		v = g->next_edge[v] ) {
-
-			// Neighbour hasn't been visited
-			if ( !is_visited(g, v) ) {
-
-				// Pursues Path if neighbour is part of the Solution
-				if ( g->vertex_visit[v] == WHITE ) {
-					tarjans_visit(g, g->edge[v], visited);
-				}
-				g->vertex_low[u] = min(	g->vertex_low[v],
-										g->vertex_low[u] );
-
-			}
-
+	for (Edge find_edge = g->first_edge[u]; find_edge != 0; find_edge = g->next_edge[find_edge]) {
+		Vertex v = g->vertex[find_edge];
+		printf("Visiting d[%d] = %d\n", v, *visited);
+		if (g->vertex_visit[v] == WHITE) {
+			g->vertex_pi[v] = u;
+			dfs_visit(g, v, visited);
 		}
-
-	printf("visited (%d): %d\n time: %d\n low: %d\n",
-	u, *visited, g->vertex_time[u], g->vertex_low[u]);
-
-	// If time of discovery = time of the lowest its SCC
-	if ( g->vertex_time[u] == g->vertex_low[u] ) {
-		visit(g, u);
-		g->result[*visited] = u;
 	}
 
+	visit(g, u);
+	g->vertex_finish[u] = ++(*visited);
+	g->result[result_index++] = u;
 }
 
-// Tarjans Algorithm
-void tarjans(Graph *g) {
-
+void dfs(Graph *g) {
 	int visited = 0;
-
-	for (Vertex v = 1; v <= g->vertices; v = next_vertex(v)) {
-		if ( !is_visited(g, v) ) {
-			tarjans_visit(g, v, &visited);
+	for (Vertex u = 1; u <= g->vertices; u = next_vertex(u)) {
+		if (g->vertex_visit[u] == WHITE) {
+			dfs_visit(g, u, &visited);
 		}
 	}
-
 }
 
 /***************************** MAIN function **********************************/
@@ -225,7 +190,7 @@ int main(void) {
 	init_graph(&g, num_v, num_e);
 
 	// Applying algorithm
-	tarjans(&g);
+	dfs(&g);
 
 	// Writing our result
 	printf("%s\n", examine_graph(&g));
