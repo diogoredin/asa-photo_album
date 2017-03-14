@@ -134,7 +134,7 @@ void init_graph(Graph *g, int num_v, int num_e) {
 }
 
 // Examines a given graph and either returns an error message, or prints the graph
-char *examine_graph(Graph *g) {
+const char *examine_graph(Graph *g) {
 
 	// Checks graph's status and write the appropriate message
 	if ( g->status == INCOHERENT ) {
