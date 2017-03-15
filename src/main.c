@@ -9,17 +9,16 @@
 
 /*************************** Auxiliary functions ******************************/
 #define get_numbers(a, b) scanf("%d %d", a, b)
-#define min(a,b) ((a) < (b) ? a : b)
 
 /*********************** Visit States & Graph Status **************************/
-enum visitStates {
-	WHITE = 0,
-	GREY,
-	BLACK
+enum orphanVertex {
+	YES = 0,
+	NO
 };
 
 enum graphStatus {
-	CORRECT = 0,
+	UNINITIALIZED = 0,
+	CORRECT,
 	INSUFFICIENT,
 	INCOHERENT
 };
@@ -29,9 +28,7 @@ enum graphStatus {
 // Vertex Structure
 typedef int Vertex;
 #define new_vertex(a) a
-#define next_vertex(a) a+1
-#define visit(graph, vertex) (graph->vertex_visit[vertex] = BLACK)
-#define is_visited(graph, vertex) (graph->vertex_visit[vertex] == BLACK)
+#define next_vertex(a) a + 1
 
 // Edge Structure
 typedef int Edge;
@@ -40,158 +37,121 @@ typedef int Edge;
 // Graph Structure
 typedef struct graph {
 
-	// Graph Properties
-	int vertices;
-	int edges;
+	int nr_vertices;
+	int nr_edges;
 	int status;
 
-	// Vertex Index -> Is the number of the vertex of origin
-	// first_edge[vertex] -> Contains the number of the edge
-	Edge *first_edge;
+	Edge *first;    // first[Vertex] = Edge
+	Vertex *vertex; // vertex[Edge]  = Vertex
+	Edge *next;     // next[Edge]    = Edge
 
-	// Edge Index -> Is the number of the edge
-	// vertex[edge] -> Contains the number of the vertex of destination
-	Vertex *vertex;
-
-	// Next_Edge Index -> Is the number of the edge
-	// Next_Edge[vertex] -> Contains the number of another edge that has the same origin
-	Edge *next_edge;
-
-	// Visit States of the Vertices (size: nr. of vertices)
-	unsigned char *vertex_visit;
-
-	// Discovery Times of the Vertices (size: nr. of vertices)
-	int *vertex_discover;
-
-	// First Vertex in the current DFS Link Search (size: nr. of vertices)
-	int *vertex_finish;
-
-	// An index corresponds to its predecessor
-	Vertex *vertex_pi;
-
-	// Topological Order of the Graph (size: nr. of vertices)
+	Vertex *orphan;
 	Vertex *result;
 
 } Graph;
 
-// Connects two vertices in the Graph
-void connect_graph(Graph *g, Vertex orig, Vertex dest) {
-	// Vertex without any Edge
-	if ( g->first_edge[orig] == 0 ) {
-		// Stores it on the Vertex array
-		g->first_edge[orig] = g->edges;
-		g->vertex[g->edges] = dest;
+// Connects two Vertices
+void connect_graph(Graph *g, Vertex a, Vertex b) {
 
-	// Vertex with One or More Edges
+	Edge edge = new_edge(b);
+	g->vertex[g->nr_edges] = edge;
+
+	if ( g->first[a] == 0 ) {
+		g->first[a] = g->nr_edges;
+
 	} else {
-		// Last Edge created for this Vertex
-		Edge find_edge = g->first_edge[orig];
 
-		// Finds the vertex Edge with an available "next" edge position
-		for (; g->next_edge[find_edge] != 0; find_edge = g->next_edge[find_edge]);
+		Edge find_edge;
 
-		// Stores it on the Edge Found
-		g->vertex[g->edges] = dest;
-		g->next_edge[find_edge] = g->edges;
+		for ( find_edge = g->first[a]; find_edge != 0; find_edge = g->next[find_edge] );
+		g->next[find_edge] = g->nr_edges;
+		g->orphan[b] = NO;
+
 	}
+
 }
 
 // Creates a new Graph
 void init_graph(Graph *g, int num_v, int num_e) {
-	// Graph Properties
-	g->vertices = num_v;
 
-	// Allocates memory for our Data Structures
-	g->first_edge      = calloc(num_v+1, sizeof(g->first_edge));
-	g->vertex          = malloc(num_e+1 *sizeof(g->vertex));
-	g->next_edge       = calloc(num_e+1, sizeof(g->next_edge));
-	g->vertex_visit    = calloc(num_v+1, sizeof(g->vertex_visit));
-	g->vertex_discover = calloc(num_v+1, sizeof(g->vertex_discover));
-	g->vertex_finish   = calloc(num_v+1, sizeof(g->vertex_finish));
-	g->vertex_pi       = calloc(num_v+1, sizeof(g->vertex_pi));
-	g->result          = malloc(num_v  * sizeof(g->result));
+	g->nr_vertices = num_v;
+	g->status      = UNINITIALIZED;
 
-	// Creates an Edge between the given Vertices
-	for (g->edges = 1; g->edges <= num_e; g->edges++) {
+	g->first  = calloc((num_v+1), sizeof(g->first));
+	g->vertex = calloc((num_e+1), sizeof(g->vertex));
+	g->next   = calloc((num_e+1), sizeof(g->next));
+
+	g->orphan = calloc((num_v+1), sizeof(g->orphan));
+	g->result = malloc(num_v    * sizeof(g->result));
+
+	for (g->nr_edges = 1; g->nr_edges <= num_e; g->nr_edges++) {
 		int num1, num2;
 		get_numbers(&num1, &num2);
 
-		Vertex orig = new_vertex(num1);
-		Vertex dest = new_vertex(num2);
-		connect_graph(g, orig, dest);
+		Vertex a = new_vertex(num1);
+		Vertex b = new_vertex(num2);
+		connect_graph(g, a, b);
 	}
+
 }
 
-// Examines a given graph and either returns an error message, or prints the graph
+// Examines Graph
 const char *examine_graph(Graph *g) {
 
-	// Goes through the result and displays it
-	for (Vertex u = 1; u <= g->vertices; u = next_vertex(u)) {
-		printf("VERTEX = %d;\n DISCOVER TIME = %d;\n FINISH TIME = %d;\n", u, g->vertex_discover[u], g->vertex_finish[u]);
-	}
+	if ( g->status == UNINITIALIZED ) {
+		return "Nulo";
 
-	// Checks graph's status and write the appropriate message
-	if ( g->status == INCOHERENT ) {
+	} if ( g->status == INCOHERENT ) {
 		return "Incoerente";
+
 	} else if ( g->status == INSUFFICIENT ) {
 		return "Insuficiente";
-	} else {
 
-		// Goes through the result and displays it
-		for (int i = 0; i < g->vertices; i++) {
+	} else if ( g->status == CORRECT ) {
+
+		for (int i = 0; i < g->nr_vertices; i++) {
 			printf("%d ", g->result[i]);
-		}
+		} return "";
 
-		return "";
-	}
+	} else { return "Erro"; }
 
 }
 
-/***************************** DFS Algorithm ******************************/
-int result_index = 0;
+/************************* Vertex "Deletion" Algorithm ***************************/
+void graph_sort(Graph *g) {
 
-void dfs_visit(Graph *g, Vertex u, int *visited) {
-	g->vertex_visit[u] = GREY;
-	g->vertex_discover[u] = ++(*visited);
+	int count = 0;
 
-	for (Edge find_edge = g->first_edge[u]; find_edge != 0; find_edge = g->next_edge[find_edge]) {
-		Vertex v = g->vertex[find_edge];
-		if (g->vertex_visit[v] == WHITE) {
-			g->vertex_pi[v] = u;
-			dfs_visit(g, v, visited);
+	for ( Vertex v = 1; v <= g->nr_vertices; v++ ) {
+
+		if ( g->orphan[v] == YES ) {
+			g->result[count++] = v;
+
+			for ( Edge find_son = g->first[v]; find_son != 0; find_son = g->next[find_son] ) {
+				g->orphan[g->vertex[find_son]] = YES;
+			}
 		}
+
 	}
 
-	visit(g, u);
-	g->vertex_finish[u] = ++(*visited);
-	g->result[result_index++] = u;
-}
-
-void dfs(Graph *g) {
-	int visited = 0;
-	for (Vertex u = 1; u <= g->vertices; u = next_vertex(u)) {
-		if (g->vertex_visit[u] == WHITE) {
-			dfs_visit(g, u, &visited);
-		}
+	// FIXME: THIS IS UTTERLY, COMPLETELY WRONG!!!
+	if ( count == g->nr_vertices ) {
+		g->status = CORRECT;
 	}
+
 }
 
 /***************************** MAIN function **********************************/
-
 int main(void) {
 
-	// Grabbing number of pictures (Vertices) and connections (Edges)
 	int num_v, num_e;
 	get_numbers(&num_v, &num_e);
 
-	// Initializing our graph
 	Graph g;
 	init_graph(&g, num_v, num_e);
 
-	// Applying algorithm
-	dfs(&g);
+	graph_sort(&g);
 
-	// Writing our result
 	printf("%s\n", examine_graph(&g));
 
 	return 0;
