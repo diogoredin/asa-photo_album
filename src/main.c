@@ -20,6 +20,15 @@ enum graphStatus {
 
 /******************** Data structures and their "methods" *********************/
 
+struct queue {
+	int *data;
+	int front, rear;
+} Queue;
+#define new_queue(size) Queue.data = malloc(size * sizeof(Queue.data)); Queue.front=0; Queue.rear=0
+#define enqueue(a)      Queue.data[Queue.rear++] = a
+#define dequeue()       Queue.data[Queue.front++]
+#define is_empty()     (Queue.front == Queue.rear)
+
 // Vertex Structure
 typedef int Vertex;
 #define new_vertex(a) a
@@ -50,6 +59,7 @@ void connect_graph(Graph *g, Vertex a, Vertex b) {
 
 	Edge edge = new_edge(b);
 	g->vertex[g->nr_edges] = edge;
+	g->indegree[b]++;
 
 	if ( g->first[a] == 0 ) {
 		g->first[a] = g->nr_edges;
@@ -60,7 +70,6 @@ void connect_graph(Graph *g, Vertex a, Vertex b) {
 
 		for ( find_edge = g->first[a]; find_edge != 0; find_edge = g->next[find_edge] );
 		g->next[find_edge] = g->nr_edges;
-		g->indegree[b]++;
 
 	}
 
@@ -86,6 +95,14 @@ void init_graph(Graph *g, int num_v, int num_e) {
 		Vertex a = new_vertex(num1);
 		Vertex b = new_vertex(num2);
 		connect_graph(g, a, b);
+	}
+
+	// Adds all orphans to Queue
+	new_queue(num_v);
+	for (Vertex u = 1; u <= g->nr_vertices; u = next_vertex(u)) {
+		if (g->indegree[u] == 0) {
+			enqueue(u);
+		}
 	}
 
 }
@@ -116,7 +133,8 @@ void graph_sort(Graph *g) {
 
 	int count = 0;
 
-	for ( Vertex v = 1; v <= g->nr_vertices; v = next_vertex(v) ) {
+	while ( !is_empty() ) {
+		Vertex v = dequeue();
 
 		if ( g->indegree[v] == 0 ) {
 			g->result[count++] = v;
