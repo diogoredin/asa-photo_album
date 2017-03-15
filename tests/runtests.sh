@@ -93,7 +93,11 @@ function parse_args {
 
 	while [ $# -gt 0 ]; do
 		case $1 in
-			# DIRECTORIES
+			# FILES & DIRECTORIES
+			-e )
+				shift
+				EXEC_prog="$1"
+				;;
 			-t )
 				shift
 				DIR_tests="$(get_absolute_dir "$1")"
@@ -148,8 +152,9 @@ function set_env {
 	DIR_project="$(cd $DIR_script/..; pwd)"
 
 	if [ -z "$EXEC_prog" ]; then
-		EXEC_prog="$DIR_project/bld/proj"
+		EXEC_prog="bld/proj"
 	fi
+	EXEC_prog="$DIR_project/$EXEC_prog"
 }
 function check_env {
 	# Checking executable
