@@ -13,9 +13,8 @@
 /*********************** Visit States & Graph Status **************************/
 enum graphStatus {
 	CORRECT = 0,
-	UNINITIALIZED,
+	INCOHERENT,
 	INSUFFICIENT,
-	INCOHERENT
 };
 
 /******************** Data structures and their "methods" *********************/
@@ -70,7 +69,7 @@ void connect_graph(Graph *g, Vertex a, Vertex b) {
 
 		Edge find_edge;
 
-		for ( find_edge = g->first[a]; find_edge != 0; find_edge = g->next[find_edge] );
+		for ( find_edge = g->first[a]; g->next[find_edge] != 0; find_edge = g->next[find_edge] );
 		g->next[find_edge] = g->nr_edges;
 
 	}
@@ -81,7 +80,7 @@ void connect_graph(Graph *g, Vertex a, Vertex b) {
 void init_graph(Graph *g, int num_v, int num_e) {
 
 	g->nr_vertices = num_v;
-	g->status      = UNINITIALIZED;
+	g->status      = INCOHERENT;
 
 	g->first  = calloc((num_v+1), sizeof(g->first));
 	g->vertex = calloc((num_e+1), sizeof(g->vertex));
@@ -121,9 +120,6 @@ void destroy_graph(Graph *g) {
 const char *examine_graph(Graph *g) {
 
 	switch ( g->status ) {
-
-	case UNINITIALIZED:
-		return "Nulo";
 
 	case INCOHERENT:
 		return "Incoerente";
