@@ -17,8 +17,8 @@ enum orphanVertex {
 };
 
 enum graphStatus {
-	UNINITIALIZED = 0,
-	CORRECT,
+	CORRECT = 0,
+	UNINITIALIZED,
 	INSUFFICIENT,
 	INCOHERENT
 };
