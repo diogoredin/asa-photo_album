@@ -14,7 +14,7 @@
 enum graphStatus {
 	CORRECT = 0,
 	INCOHERENT,
-	INSUFFICIENT,
+	INSUFFICIENT
 };
 
 /******************** Data structures and their "methods" *********************/
@@ -78,6 +78,7 @@ void connect_graph(Graph *g, Vertex a, Vertex b) {
 
 /* Creates a new Graph */
 void init_graph(Graph *g, int num_v, int num_e) {
+	Vertex u;
 
 	g->nr_vertices = num_v;
 	g->status      = INCOHERENT;
@@ -91,18 +92,18 @@ void init_graph(Graph *g, int num_v, int num_e) {
 
 	for (g->nr_edges = 1; g->nr_edges <= num_e; g->nr_edges++) {
 		int num1, num2;
-		Vertex a, b;
+		Vertex v;
 
 		get_numbers(&num1, &num2);
-		a = new_vertex(num1);
-		b = new_vertex(num2);
+		u = new_vertex(num1);
+		v = new_vertex(num2);
 
-		connect_graph(g, a, b);
+		connect_graph(g, u, v);
 	}
 
 	/* Adds all orphans to Queue */
 	new_queue(num_v);
-	for (Vertex u = 1; u <= g->nr_vertices; u = next_vertex(u)) {
+	for (u = 1; u <= g->nr_vertices; u = next_vertex(u)) {
 		if (g->indegree[u] == 0) {
 			enqueue(u);
 		}
@@ -122,18 +123,20 @@ void destroy_graph(Graph *g) {
 const char *examine_graph(Graph *g) {
 
 	switch ( g->status ) {
-	case INCOHERENT:
-		return "Incoerente";
+		case INCOHERENT:
+			return "Incoerente";
 
-	case INSUFFICIENT:
-		return "Insuficiente";
+		case INSUFFICIENT:
+			return "Insuficiente";
 
-	default:
-		for (int i = 0; i < g->nr_vertices; i++ ) {
-			printf("%d", g->result[i]);
-			if (i+1 < g->nr_vertices) { printf(" "); }
+		default: {
+			int i;
+			for ( i = 0; i < g->nr_vertices; i++ ) {
+				printf("%d", g->result[i]);
+				if (i+1 < g->nr_vertices) { printf(" "); }
+			}
+			return "";
 		}
-		return "";
 	}
 
 }
@@ -148,9 +151,10 @@ void graph_sort(Graph *g) {
 		g->result[count++] = u;
 
 		if ( g->indegree[u] == 0 ) {
+			Edge find_son;
 			int max_solutions = 0;
 
-			for ( Edge find_son = g->first[u]; find_son != 0; find_son = g->next[find_son] ) {
+			for ( find_son = g->first[u]; find_son != 0; find_son = g->next[find_son] ) {
 				Vertex v = g->vertex[find_son];
 
 				g->indegree[v]--;

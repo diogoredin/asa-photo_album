@@ -6,7 +6,7 @@ SRCDIR = src
 CC = gcc
 
 # Adding recommended warnings
-CFLAGS+= -ansi -Wall -Wextra -Wunreachable-code
+CFLAGS+= -ansi -pedantic -std=c89 -Wall -Wextra -Wunreachable-code
 # Abusing warning switches
 CFLAGS+= -Wbad-function-cast -Wstrict-prototypes -Wdeclaration-after-statement
 CFLAGS+= -Wshadow -Wpointer-arith -Wcast-qual -Wno-missing-braces -Winline
