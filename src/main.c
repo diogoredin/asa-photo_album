@@ -122,6 +122,9 @@ const char *examine_graph(Graph *g) {
 
 	switch ( g->status ) {
 
+	case UNINITIALIZED:
+		return "Nulo";
+
 	case INCOHERENT:
 		return "Incoerente";
 
@@ -144,17 +147,26 @@ void graph_sort(Graph *g) {
 	int count = 0;
 
 	while ( !is_empty() ) {
-		Vertex v = dequeue();
+		Vertex u = dequeue();
+		g->result[count++] = u;
 
-		if ( g->indegree[v] == 0 ) {
-			g->result[count++] = v;
+		if ( g->indegree[u] == 0 ) {
 
-			for ( Edge find_son = g->first[v]; find_son != 0; find_son = g->next[find_son] ) {
-				g->indegree[g->vertex[find_son]]--;
+			for ( Edge find_son = g->first[u]; find_son != 0; find_son = g->next[find_son] ) {
+				Vertex v = g->vertex[find_son];
+				g->indegree[v]--;
+
+				if ( g->indegree[v] == 0 ) {
+					enqueue(v);
+				}
 			}
 		}
 
 	}
+
+	if ( count == g->nr_vertices ) {
+ 		g->status = CORRECT;
+ 	}
 
 }
 
