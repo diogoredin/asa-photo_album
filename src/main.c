@@ -148,31 +148,30 @@ void graph_sort(Graph *g) {
 		g->result[count++] = u;
 
 		if ( g->indegree[u] == 0 ) {
+			int max_solutions = 0;
 
-			Edge find_son;
-			int indegree_temp = 0;
-
-			for ( find_son = g->first[u];
-				  find_son != 0 && indegree_temp != g->indegree[g->vertex[find_son]];
-				  find_son = g->next[find_son] ) {
-
+			for ( Edge find_son = g->first[u]; find_son != 0; find_son = g->next[find_son] ) {
 				Vertex v = g->vertex[find_son];
-				indegree_temp = g->indegree[v]--;
+
+				g->indegree[v]--;
 
 				if ( g->indegree[v] == 0 ) {
 					enqueue(v);
+					max_solutions++;
 				}
-			}
 
-			if ( indegree_temp == g->indegree[g->vertex[find_son]] ) {
-				g->status = INSUFFICIENT;
+				/* If suddenly u has more than 1 adjacent whose indegree == 0 */
+				if (max_solutions > 1) {
+					g->status = INSUFFICIENT;
+					break;
+				}
 			}
 
 		}
 
 	}
 
-	if ( ( count == g->nr_vertices ) && ( g->status = INSUFFICIENT ) ) {
+	if ( ( count == g->nr_vertices ) && ( g->status != INSUFFICIENT ) ) {
  		g->status = CORRECT;
  	}
 
