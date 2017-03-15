@@ -16,13 +16,14 @@ CFLAGS+= -Wno-missing-field-initializers
 EXEC = $(OBJDIR)/proj
 
 # General rules
+all: CFLAGS += -O3
 all: $(EXEC)
 
 $(EXEC): $(SRCDIR)/main.c
 	$(CC) $(CFLAGS) $^ -o $@
 
-debug: CFLAGS += -g -DDEBUG
-debug: all
+debug: CFLAGS += -g -O0 -DDEBUG
+debug: $(EXEC)
 
 tests: debug
 	tests/runtests.sh -e $(EXEC)
