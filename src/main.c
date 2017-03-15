@@ -82,9 +82,9 @@ void init_graph(Graph *g, int num_v, int num_e) {
 	g->nr_vertices = num_v;
 	g->status      = INCOHERENT;
 
-	g->first  = calloc((num_v+1), sizeof(g->first));
-	g->vertex = calloc((num_e+1), sizeof(g->vertex));
-	g->next   = calloc((num_e+1), sizeof(g->next));
+	g->first    = calloc((num_v+1), sizeof(g->first));
+	g->vertex   = calloc((num_e+1), sizeof(g->vertex));
+	g->next     = calloc((num_e+1), sizeof(g->next));
 
 	g->indegree = calloc((num_v+1), sizeof(g->indegree));
 	g->result 	= malloc(num_v    * sizeof(g->result));
@@ -122,7 +122,6 @@ void destroy_graph(Graph *g) {
 const char *examine_graph(Graph *g) {
 
 	switch ( g->status ) {
-
 	case INCOHERENT:
 		return "Incoerente";
 
@@ -185,7 +184,6 @@ int main(void) {
 	Graph g;
 
 	get_numbers(&num_v, &num_e);
-
 	init_graph(&g, num_v, num_e);
 
 	graph_sort(&g);
