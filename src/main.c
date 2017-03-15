@@ -11,11 +11,6 @@
 #define get_numbers(a, b) scanf("%d %d", a, b)
 
 /*********************** Visit States & Graph Status **************************/
-enum orphanVertex {
-	YES = 0,
-	NO
-};
-
 enum graphStatus {
 	CORRECT = 0,
 	UNINITIALIZED,
@@ -45,7 +40,7 @@ typedef struct graph {
 	Vertex *vertex; // vertex[Edge]  = Vertex
 	Edge *next;     // next[Edge]    = Edge
 
-	Vertex *orphan;
+	Vertex *indegree;
 	Vertex *result;
 
 } Graph;
@@ -65,7 +60,7 @@ void connect_graph(Graph *g, Vertex a, Vertex b) {
 
 		for ( find_edge = g->first[a]; find_edge != 0; find_edge = g->next[find_edge] );
 		g->next[find_edge] = g->nr_edges;
-		g->orphan[b] = NO;
+		g->indegree[b]++;
 
 	}
 
@@ -81,8 +76,8 @@ void init_graph(Graph *g, int num_v, int num_e) {
 	g->vertex = calloc((num_e+1), sizeof(g->vertex));
 	g->next   = calloc((num_e+1), sizeof(g->next));
 
-	g->orphan = calloc((num_v+1), sizeof(g->orphan));
-	g->result = malloc(num_v    * sizeof(g->result));
+	g->indegree = calloc((num_v+1), sizeof(g->indegree));
+	g->result 	= malloc(num_v    * sizeof(g->result));
 
 	for (g->nr_edges = 1; g->nr_edges <= num_e; g->nr_edges++) {
 		int num1, num2;
@@ -99,8 +94,6 @@ void init_graph(Graph *g, int num_v, int num_e) {
 const char *examine_graph(Graph *g) {
 
 	switch ( g->status ) {
-	case UNINITIALIZED:
-		return "Nulo";
 
 	case INCOHERENT:
 		return "Incoerente";
@@ -108,15 +101,12 @@ const char *examine_graph(Graph *g) {
 	case INSUFFICIENT:
 		return "Insuficiente";
 
-	case CORRECT:
+	default:
 		for (int i = 0; i < g->nr_vertices; i++ ) {
 			printf("%d", g->result[i]);
 			if (i+1 < g->nr_vertices) { printf(" "); }
 		}
 		return "";
-
-	default:
-		return "Erro";
 	}
 
 }
@@ -126,21 +116,16 @@ void graph_sort(Graph *g) {
 
 	int count = 0;
 
-	for ( Vertex v = 1; v <= g->nr_vertices; v++ ) {
+	for ( Vertex v = 1; v <= g->nr_vertices; v = next_vertex(v) ) {
 
-		if ( g->orphan[v] == YES ) {
+		if ( g->indegree[v] == 0 ) {
 			g->result[count++] = v;
 
 			for ( Edge find_son = g->first[v]; find_son != 0; find_son = g->next[find_son] ) {
-				g->orphan[g->vertex[find_son]] = YES;
+				g->indegree[g->vertex[find_son]]--;
 			}
 		}
 
-	}
-
-	// FIXME: THIS IS UTTERLY, COMPLETELY WRONG!!!
-	if ( count == g->nr_vertices ) {
-		g->status = CORRECT;
 	}
 
 }
