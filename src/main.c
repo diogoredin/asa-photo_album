@@ -20,6 +20,7 @@ enum graphStatus {
 
 /******************** Data structures and their "methods" *********************/
 
+// Global queue
 struct queue {
 	int *data;
 	int front, rear;
@@ -28,6 +29,7 @@ struct queue {
 #define enqueue(a)      Queue.data[Queue.rear++] = a
 #define dequeue()       Queue.data[Queue.front++]
 #define is_empty()     (Queue.front == Queue.rear)
+#define destroy_queue() free(Queue.data = NULL)
 
 // Vertex Structure
 typedef int Vertex;
@@ -107,6 +109,14 @@ void init_graph(Graph *g, int num_v, int num_e) {
 
 }
 
+void destroy_graph(Graph *g) {
+	free(g->first = NULL);
+	free(g->vertex = NULL);
+	free(g->next = NULL);
+	free(g->indegree = NULL);
+	free(g->result = NULL);
+}
+
 // Examines Graph
 const char *examine_graph(Graph *g) {
 
@@ -161,5 +171,7 @@ int main(void) {
 
 	printf("%s\n", examine_graph(&g));
 
+	destroy_graph(&g);
+	destroy_queue();
 	return 0;
 }
