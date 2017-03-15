@@ -19,7 +19,7 @@ enum graphStatus {
 
 /******************** Data structures and their "methods" *********************/
 
-// Global queue
+/* Global queue */
 struct queue {
 	int *data;
 	int front, rear;
@@ -30,32 +30,32 @@ struct queue {
 #define is_empty()     (Queue.front == Queue.rear)
 #define destroy_queue() free(Queue.data = NULL)
 
-// Vertex Structure
+/* Vertex Structure */
 typedef int Vertex;
 #define new_vertex(a) a
 #define next_vertex(a) a + 1
 
-// Edge Structure
+/* Edge Structure */
 typedef int Edge;
 #define new_edge(a) a
 
-// Graph Structure
+/* Graph Structure */
 typedef struct graph {
 
 	int nr_vertices;
 	int nr_edges;
 	int status;
 
-	Edge *first;    // first[Vertex] = Edge
-	Vertex *vertex; // vertex[Edge]  = Vertex
-	Edge *next;     // next[Edge]    = Edge
+	Edge *first;    /* first[Vertex] = Edge   */
+	Vertex *vertex; /* vertex[Edge]  = Vertex */
+	Edge *next;     /* next[Edge]    = Edge   */
 
 	Vertex *indegree;
 	Vertex *result;
 
 } Graph;
 
-// Connects two Vertices
+/* Connects two Vertices */
 void connect_graph(Graph *g, Vertex a, Vertex b) {
 
 	Edge edge = new_edge(b);
@@ -76,7 +76,7 @@ void connect_graph(Graph *g, Vertex a, Vertex b) {
 
 }
 
-// Creates a new Graph
+/* Creates a new Graph */
 void init_graph(Graph *g, int num_v, int num_e) {
 
 	g->nr_vertices = num_v;
@@ -91,14 +91,16 @@ void init_graph(Graph *g, int num_v, int num_e) {
 
 	for (g->nr_edges = 1; g->nr_edges <= num_e; g->nr_edges++) {
 		int num1, num2;
-		get_numbers(&num1, &num2);
+		Vertex a, b;
 
-		Vertex a = new_vertex(num1);
-		Vertex b = new_vertex(num2);
+		get_numbers(&num1, &num2);
+		a = new_vertex(num1);
+		b = new_vertex(num2);
+
 		connect_graph(g, a, b);
 	}
 
-	// Adds all orphans to Queue
+	/* Adds all orphans to Queue */
 	new_queue(num_v);
 	for (Vertex u = 1; u <= g->nr_vertices; u = next_vertex(u)) {
 		if (g->indegree[u] == 0) {
@@ -116,7 +118,7 @@ void destroy_graph(Graph *g) {
 	free(g->result = NULL);
 }
 
-// Examines Graph
+/* Examines Graph */
 const char *examine_graph(Graph *g) {
 
 	switch ( g->status ) {
@@ -179,11 +181,11 @@ void graph_sort(Graph *g) {
 
 /***************************** MAIN function **********************************/
 int main(void) {
-
 	int num_v, num_e;
+	Graph g;
+
 	get_numbers(&num_v, &num_e);
 
-	Graph g;
 	init_graph(&g, num_v, num_e);
 
 	graph_sort(&g);
