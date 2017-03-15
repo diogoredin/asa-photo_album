@@ -109,8 +109,9 @@ const char *examine_graph(Graph *g) {
 		return "Insuficiente";
 
 	case CORRECT:
-		for (int i = 0; i < g->nr_vertices; i++) {
-			printf("%d ", g->result[i]);
+		for (int i = 0; i < g->nr_vertices; i++ ) {
+			printf("%d", g->result[i]);
+			if (i+1 < g->nr_vertices) { printf(" "); }
 		}
 		return "";
 
