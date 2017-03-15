@@ -98,22 +98,25 @@ void init_graph(Graph *g, int num_v, int num_e) {
 // Examines Graph
 const char *examine_graph(Graph *g) {
 
-	if ( g->status == UNINITIALIZED ) {
+	switch ( g->status ) {
+	case UNINITIALIZED:
 		return "Nulo";
 
-	} if ( g->status == INCOHERENT ) {
+	case INCOHERENT:
 		return "Incoerente";
 
-	} else if ( g->status == INSUFFICIENT ) {
+	case INSUFFICIENT:
 		return "Insuficiente";
 
-	} else if ( g->status == CORRECT ) {
-
+	case CORRECT:
 		for (int i = 0; i < g->nr_vertices; i++) {
 			printf("%d ", g->result[i]);
-		} return "";
+		}
+		return "";
 
-	} else { return "Erro"; }
+	default:
+		return "Erro";
+	}
 
 }
 
