@@ -143,7 +143,6 @@ const char *examine_graph(Graph *g) {
 
 /************************* Vertex "Deletion" Algorithm ***************************/
 void graph_sort(Graph *g) {
-
 	int count = 0;
 
 	while ( !is_empty() ) {
@@ -157,9 +156,7 @@ void graph_sort(Graph *g) {
 			for ( find_son = g->first[u]; find_son != 0; find_son = g->next[find_son] ) {
 				Vertex v = g->vertex[find_son];
 
-				g->indegree[v]--;
-
-				if ( g->indegree[v] == 0 ) {
+				if ( --g->indegree[v] == 0 ) {
 					enqueue(v);
 					max_solutions++;
 				}
@@ -170,15 +167,12 @@ void graph_sort(Graph *g) {
 					break;
 				}
 			}
-
 		}
-
 	}
 
 	if ( ( count == g->nr_vertices ) && ( g->status != INSUFFICIENT ) ) {
  		g->status = CORRECT;
  	}
-
 }
 
 /***************************** MAIN function **********************************/
