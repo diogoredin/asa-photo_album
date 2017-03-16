@@ -151,15 +151,18 @@ function print_error {
 }
 
 function set_env {
+	if [ "$EXEC_prog" ]; then
+		EXEC_prog="$(get_absolute_dir $(dirname $EXEC_prog))/$(basename $EXEC_prog)"
+	fi
+
 	# Defining script directories
 	cd "$(dirname "$0")"
 	DIR_script="$(pwd)"
 	DIR_project="$(cd $DIR_script/..; pwd)"
 
 	if [ -z "$EXEC_prog" ]; then
-		EXEC_prog="bld/proj"
+		EXEC_prog="$DIR_project/bld/proj"
 	fi
-	EXEC_prog="$DIR_project/$EXEC_prog"
 
 	if [ $BOOL_timer == true ]; then
 		useTimer="time"
