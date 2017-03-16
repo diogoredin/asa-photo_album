@@ -59,9 +59,10 @@ readonly usage_content=( "Usage: $(basename $ScriptName)"
 	-h | --help : Shows this message"
 "FILES & DIRECTORIES:
 	-e : Specify executable
-	-t : Specify tests directory"
+	-d : Specify tests directory"
 "OPTIONS:
 	-m | --use-valgrind : Enables testing with valgrind (good for memory tracking)
+	-t : Use system timer when running tests
 	--show-all : Prints successes as well"
 )
 
@@ -71,6 +72,7 @@ readonly DIR_current="$(pwd)"
 # Options
 BOOL_recursive=true
 BOOL_showAll=false
+BOOL_timer=false
 
 # =========== FUNCTIONS ===========
 function usage {
@@ -98,7 +100,7 @@ function parse_args {
 				shift
 				EXEC_prog="$1"
 				;;
-			-t )
+			-d )
 				shift
 				DIR_tests="$(get_absolute_dir "$1")"
 				BOOL_recursive=false
@@ -106,6 +108,9 @@ function parse_args {
 			# OPTIONS
 			-m | --use-valgrind )
 				useValgrind="valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --db-attach=yes"
+				;;
+			-t )
+				BOOL_timer=true
 				;;
 			--show-all )
 				BOOL_showAll=true
@@ -155,6 +160,10 @@ function set_env {
 		EXEC_prog="bld/proj"
 	fi
 	EXEC_prog="$DIR_project/$EXEC_prog"
+
+	if [ $BOOL_timer == true ]; then
+		useTimer="time"
+	fi
 }
 function check_env {
 	# Checking executable
@@ -198,7 +207,10 @@ function test_dir {
 		if [ "$useValgrind" ]; then
 			$useValgrind $EXEC_prog < $test_input
 		else
-			$EXEC_prog < $test_input > $test_outhyp
+			if [ $BOOL_timer == true ]; then
+				printf "Timing $test_input\n"
+			fi
+			$useTimer $EXEC_prog < $test_input > $test_outhyp
 		fi
 
 		if [ $? -ne 0 ]; then
