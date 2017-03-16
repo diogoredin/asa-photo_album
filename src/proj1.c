@@ -44,7 +44,7 @@ typedef struct graph {
 
 	int nr_vertices;
 	int nr_edges;
-	int status;
+	unsigned char status;
 
 	Edge *first;    /* first[Vertex] = Edge   */
 	Vertex *vertex; /* vertex[Edge]  = Vertex */
@@ -58,8 +58,7 @@ typedef struct graph {
 /* Connects two Vertices */
 void connect_graph(Graph *g, Vertex a, Vertex b) {
 
-	Edge edge = new_edge(b);
-	g->vertex[g->nr_edges] = edge;
+	g->vertex[g->nr_edges] = new_edge(b);
 	g->indegree[b]++;
 
 	if ( g->first[a] == 0 ) {
@@ -67,9 +66,9 @@ void connect_graph(Graph *g, Vertex a, Vertex b) {
 
 	} else {
 
-		Edge find_edge;
+		Edge find_edge = find_edge = g->first[a];
 
-		for ( find_edge = g->first[a]; g->next[find_edge] != 0; find_edge = g->next[find_edge] );
+		for ( ; g->next[find_edge] != 0; find_edge = g->next[find_edge] );
 		g->next[find_edge] = g->nr_edges;
 
 	}
@@ -164,13 +163,13 @@ void graph_sort(Graph *g) {
 				/* If suddenly u has more than 1 adjacent whose indegree == 0 */
 				if (max_solutions > 1) {
 					g->status = INSUFFICIENT;
-					break;
+					return;
 				}
 			}
 		}
 	}
 
-	if ( ( count == g->nr_vertices ) && ( g->status != INSUFFICIENT ) ) {
+	if ( count == g->nr_vertices ) {
  		g->status = CORRECT;
  	}
 }

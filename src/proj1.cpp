@@ -37,9 +37,8 @@ std::vector<Vertex> queue;
 /* Graph Structure */
 class Graph {
 	private:
-		int _nr_vertices;
 		int _nr_edges;
-		int _status;
+		unsigned char _status;
 
 		std::vector<Edge> _first;    /* _first[Vertex] = Edge   */
 		std::vector<Vertex> _vertex; /* _vertex[Edge]  = Vertex */
@@ -59,14 +58,12 @@ class Graph {
 Graph::Graph(int num_v, int num_e) {
 	Vertex u;
 
-	_nr_vertices = num_v;
-	_status      = INCOHERENT;
-	_first       = std::vector<Vertex>(num_v+1);
-	_vertex      = std::vector<Edge>(num_e+1);
-	_next        = std::vector<Edge>(num_e+1);
+	_status   = INCOHERENT;
+	_first    = std::vector<Edge>(num_v+1);
+	_vertex   = std::vector<Vertex>(num_e+1);
+	_next     = std::vector<Edge>(num_e+1);
 
-	_indegree    = std::vector<int>(num_v+1);
-	_result      = std::vector<Vertex>(num_v);
+	_indegree = std::vector<int>(num_v+1);
 
 	for (_nr_edges = 1; _nr_edges <= num_e; _nr_edges++) {
 		int num1, num2;
@@ -80,7 +77,7 @@ Graph::Graph(int num_v, int num_e) {
 	}
 
 	/* Adds all orphans to Queue */
-	for (u = 1; u <= _nr_vertices; u = next_vertex(u)) {
+	for (u = 1; u <= num_v; u = next_vertex(u)) {
 		if (_indegree[u] == 0) {
 			enqueue(u);
 		}
@@ -90,16 +87,15 @@ Graph::~Graph() { /* Nothing here */ }
 
 /* Connects two Vertices */
 void Graph::connect(Vertex a, Vertex b) {
-	Edge edge = new_edge(b);
-	_vertex[_nr_edges] = edge;
+	_vertex[_nr_edges] = new_edge(b);
 	_indegree[b]++;
 
 	if ( _first[a] == 0 ) {
 		_first[a] = _nr_edges;
 	} else {
-		Edge find_edge;
+		Edge find_edge = _first[a];
 
-		for ( find_edge = _first[a]; _next[find_edge] != 0; find_edge = _next[find_edge] );
+		for ( ; _next[find_edge] != 0; find_edge = _next[find_edge] );
 		_next[find_edge] = _nr_edges;
 	}
 }
@@ -114,22 +110,20 @@ std::ostream& operator<<(std::ostream& os, const Graph &graph) {
 			return os << "Insuficiente";
 
 		default: {
-			int i, size = graph._nr_vertices - 1;
-			for ( i = 0; i < size; i++ ) {
-				os << graph._result[i] << " ";
+			std::vector<const Vertex>::iterator it;
+			for (it = graph._result.begin(); it < graph._result.end() - 1; it++) {
+				os << *it << " ";
 			}
-			return os << graph._result[i];
+			return os << *it;
 		}
 	}
 }
 
 /************************* Vertex "Deletion" Algorithm ***************************/
 void Graph::sort() {
-	int count = 0;
-
 	while ( !is_empty() ) {
 		Vertex u = dequeue();
-		_result[count++] = u;
+		_result.push_back(u);
 
 		if ( _indegree[u] == 0 ) {
 			int max_solutions = 0;
@@ -151,7 +145,7 @@ void Graph::sort() {
 		}
 	}
 
-	if ( ( count == _nr_vertices ) && ( _status != INSUFFICIENT ) ) {
+	if ( _result.size() == _first.size() - 1 ) {
  		_status = CORRECT;
  	}
 }
