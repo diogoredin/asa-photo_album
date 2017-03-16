@@ -107,7 +107,7 @@ function parse_args {
 				;;
 			# OPTIONS
 			-m | --use-valgrind )
-				useValgrind="valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --db-attach=yes"
+				useValgrind="valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --vgdb-error=1"
 				;;
 			-t )
 				BOOL_timer=true
