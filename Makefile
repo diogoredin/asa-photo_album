@@ -11,6 +11,13 @@ CFLAGS = -ansi -pedantic -Wall -Wextra -Wunreachable-code
 CFLAGS+= -Wshadow -Wpointer-arith -Wcast-qual -Wno-missing-braces -Winline
 CFLAGS+= -Wno-missing-field-initializers
 
+BUILD ?= release
+ifeq ($(BUILD), debug)
+	CFLAGS += -g -O0 -DDEBUG
+else
+	CFLAGS += -O3
+endif
+
 # Specific flags
 CCFLAGS = $(CFLAGS) -std=c89
 CXFLAGS = $(CFLAGS)
@@ -20,12 +27,9 @@ EXEC_PROJ1   = $(OBJDIR)/proj1
 EXEC_PROJ1PP = $(OBJDIR)/proj1pp
 EXECS = $(EXEC_PROJ1) $(EXEC_PROJ1PP)
 
-# General rules (point to main focus files)
-all: CFLAGS += -O3
-all: proj1
 
-debug: CFLAGS += -g -O0 -DDEBUG
-debug: proj1
+# General rules (point to main focus files)
+all: proj1
 
 clean:
 	rm -rf $(EXECS) $(OBJDIR)/*.o $(OBJDIR)/*.dSYM
