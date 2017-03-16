@@ -13,13 +13,13 @@ CFLAGS+= -Wshadow -Wpointer-arith -Wcast-qual -Wno-missing-braces -Winline
 CFLAGS+= -Wno-missing-field-initializers
 
 # Executables
-EXEC = $(OBJDIR)/proj
+EXEC = $(OBJDIR)/proj1
 
 # General rules
 all: CFLAGS += -O3
 all: $(EXEC)
 
-$(EXEC): $(SRCDIR)/main.c
+$(EXEC): $(SRCDIR)/proj1.c
 	$(CC) $(CFLAGS) $^ -o $@
 
 debug: CFLAGS += -g -O0 -DDEBUG
