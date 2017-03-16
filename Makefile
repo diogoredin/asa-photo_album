@@ -3,8 +3,8 @@ SRCDIR = src
 OBJDIR = bld
 
 # Compilers
-CC  = gcc
-CXX = g++
+CC  ?= gcc
+CXX ?= g++
 
 # Shared compilation flags
 CFLAGS = -ansi -pedantic -Wall -Wextra -Wunreachable-code
