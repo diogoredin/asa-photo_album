@@ -1,29 +1,41 @@
 # Directories
-OBJDIR ?= bld
 SRCDIR = src
+OBJDIR = bld
 
-# Compiler and compilation flags
-CC = gcc
+# Compilers
+CC  = gcc
+CXX = g++
 
-# Adding recommended warnings
-CFLAGS+= -ansi -pedantic -std=c89 -Wall -Wextra -Wunreachable-code
-# Abusing warning switches
-CFLAGS+= -Wbad-function-cast -Wstrict-prototypes -Wdeclaration-after-statement
+# Shared compilation flags
+CFLAGS = -ansi -pedantic -Wall -Wextra -Wunreachable-code
 CFLAGS+= -Wshadow -Wpointer-arith -Wcast-qual -Wno-missing-braces -Winline
 CFLAGS+= -Wno-missing-field-initializers
 
+# Specific flags
+CCFLAGS = $(CFLAGS) -std=c89
+CXFLAGS = $(CFLAGS)
+
 # Executables
-EXEC = $(OBJDIR)/proj1
+EXEC_PROJ1   = $(OBJDIR)/proj1
+EXEC_PROJ1PP = $(OBJDIR)/proj1pp
+EXECS = $(EXEC_PROJ1) $(EXEC_PROJ1PP)
 
 # General rules
 all: CFLAGS += -O3
-all: $(EXEC)
-
-$(EXEC): $(SRCDIR)/proj1.c
-	$(CC) $(CFLAGS) $^ -o $@
+all: proj1
 
 debug: CFLAGS += -g -O0 -DDEBUG
-debug: $(EXEC)
+debug: proj1
+
+# Specific rules
+proj1: $(EXEC_PROJ1)
+proj1pp: $(EXEC_PROJ1PP)
+
+$(EXEC_PROJ1): $(SRCDIR)/proj1.c
+	$(CC) $(CCFLAGS) $^ -o $@
+
+$(EXEC_PROJ1PP): $(SRCDIR)/proj1.cpp
+	$(CXX) $(CXFLAGS) $^ -o $@
 
 tests: debug
 	tests/runtests.sh -e $(EXEC)
@@ -32,6 +44,6 @@ valgrind: debug
 	tests/runtests.sh -e $(EXEC) --use-valgrind
 
 clean:
-	rm -rf $(EXEC) $(OBJDIR)/*.o $(OBJDIR)/*.dSYM
+	rm -rf $(EXECS) $(OBJDIR)/*.o $(OBJDIR)/*.dSYM
 
 .PHONY: all clean debug test valgrind
