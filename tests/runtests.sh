@@ -211,7 +211,7 @@ function test_dir {
 			$useValgrind $EXEC_prog < $test_input
 		else
 			if [ $BOOL_timer == true ]; then
-				printf "Timing $test_input\n"
+				printf "Timing $(basename $test_input): "
 			fi
 			$useTimer $EXEC_prog < $test_input > $test_outhyp
 		fi
