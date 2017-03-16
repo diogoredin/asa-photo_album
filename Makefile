@@ -20,30 +20,26 @@ EXEC_PROJ1   = $(OBJDIR)/proj1
 EXEC_PROJ1PP = $(OBJDIR)/proj1pp
 EXECS = $(EXEC_PROJ1) $(EXEC_PROJ1PP)
 
-# General rules
+# General rules (point to main focus files)
 all: CFLAGS += -O3
 all: proj1
 
 debug: CFLAGS += -g -O0 -DDEBUG
 debug: proj1
 
+clean:
+	rm -rf $(EXECS) $(OBJDIR)/*.o $(OBJDIR)/*.dSYM
+
 # Specific rules
 proj1: $(EXEC_PROJ1)
 proj1pp: $(EXEC_PROJ1PP)
 
+# Compilation rules
 $(EXEC_PROJ1): $(SRCDIR)/proj1.c
 	$(CC) $(CCFLAGS) $^ -o $@
 
 $(EXEC_PROJ1PP): $(SRCDIR)/proj1.cpp
 	$(CXX) $(CXFLAGS) $^ -o $@
 
-tests: debug
-	tests/runtests.sh -e $(EXEC)
-
-valgrind: debug
-	tests/runtests.sh -e $(EXEC) --use-valgrind
-
-clean:
-	rm -rf $(EXECS) $(OBJDIR)/*.o $(OBJDIR)/*.dSYM
 
 .PHONY: all clean debug test valgrind
