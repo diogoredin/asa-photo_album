@@ -129,10 +129,9 @@ const char *examine_graph(Graph *g) {
 			return "Insuficiente";
 
 		default: {
-			int i;
-			for ( i = 0; i < g->nr_vertices; i++ ) {
+			int i, size = g->nr_vertices - 1;
+			for ( i = 0; i < size; i++ ) {
 				printf("%d", g->result[i]);
-				if (i+1 < g->nr_vertices) { printf(" "); }
 			}
 			return "";
 		}

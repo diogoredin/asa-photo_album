@@ -110,11 +110,11 @@ std::ostream& operator<<(std::ostream& os, const Graph &graph) {
 			return os << "Insuficiente";
 
 		default: {
-			std::vector<const Vertex>::iterator it;
-			for (it = graph._result.begin(); it < graph._result.end() - 1; it++) {
-				os << *it << " ";
+			int i, size = graph._result.size() - 1;
+			for ( i = 0; i < size; i++ ) {
+				os << graph._result[i] << " ";
 			}
-			return os << *it;
+			return os << graph._result[i];
 		}
 	}
 }
