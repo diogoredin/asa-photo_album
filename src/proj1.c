@@ -28,7 +28,7 @@ struct queue {
 #define enqueue(a)      Queue.data[Queue.rear++] = a
 #define dequeue()       Queue.data[Queue.front++]
 #define is_empty()     (Queue.front == Queue.rear)
-#define destroy_queue() free(Queue.data = NULL)
+#define destroy_queue() free(Queue.data); Queue.data = NULL
 
 /* Vertex Structure */
 typedef int Vertex;
@@ -111,11 +111,11 @@ void init_graph(Graph *g, int num_v, int num_e) {
 }
 
 void destroy_graph(Graph *g) {
-	free(g->first = NULL);
-	free(g->vertex = NULL);
-	free(g->next = NULL);
-	free(g->indegree = NULL);
-	free(g->result = NULL);
+	free(g->first);    g->first    = NULL;
+	free(g->vertex);   g->vertex   = NULL;
+	free(g->next);     g->next     = NULL;
+	free(g->indegree); g->indegree = NULL;
+	free(g->result);   g->result   = NULL;
 }
 
 /* Examines Graph */
