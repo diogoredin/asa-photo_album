@@ -4,6 +4,7 @@
 *******************************************************************************/
 
 /* Libraries. Only the bare minimum, no need for clutter */
+#include <stdio.h>
 #include <iostream>
 #include <vector>
 
