@@ -131,8 +131,9 @@ const char *examine_graph(Graph *g) {
 		default: {
 			int i, size = g->nr_vertices - 1;
 			for ( i = 0; i < size; i++ ) {
-				printf("%d", g->result[i]);
+				printf("%d ", g->result[i]);
 			}
+			printf("%d", g->result[i]);
 			return "";
 		}
 	}
