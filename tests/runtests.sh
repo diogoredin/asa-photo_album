@@ -103,7 +103,9 @@ function parse_args {
 			-d )
 				shift
 				DIR_tests="$(get_absolute_dir "$1")"
-				BOOL_recursive=false
+				if [ "$(ls $1/*.in 2> /dev/null)" -o "$(ls $1/*.out 2> /dev/null)" ]; then
+					BOOL_recursive=false
+				fi
 				;;
 			# OPTIONS
 			-m | --use-valgrind )
@@ -159,6 +161,9 @@ function set_env {
 	cd "$(dirname "$0")"
 	DIR_script="$(pwd)"
 	DIR_project="$(cd $DIR_script/..; pwd)"
+	if [ -z "$DIR_tests" ]; then
+		DIR_tests="$DIR_script"
+	fi
 
 	if [ -z "$EXEC_prog" ]; then
 		EXEC_prog="$DIR_project/bld/proj"
@@ -260,7 +265,7 @@ function main {
 	local retval=$RET_success
 	local fail_count=0
 	if [ $BOOL_recursive == true ]; then
-		for x in $DIR_script/*/; do
+		for x in $DIR_tests/*/; do
 			print_progress "Running through \"$x\""
 			test_dir "$x"
 			fail_count=$(($fail_count + $?))

@@ -10,8 +10,9 @@ The options available for the script are:
 	* `-h | --help` : Shows "usage" message (kind of pointless, if you ask me)
 * **FILES & DIRECTORIES**
 	* `-e` : Specify executable
-	* `-t` : Specify tests directory. This will run only *one* given directory
+	* `-d` : Specify tests directory (will run recursively only if children directories contain tests)
 * **OPTIONS**
 	* `-m | --use-valgrind` : Enables testing with valgrind (good for memory tracking).
 	Will abort if valgrind is not installed
+	* `-t` : Use system timer when running tests
 	* `--show-all` : Prints successes as well (only prints failures by default)
