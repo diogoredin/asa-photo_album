@@ -25,25 +25,27 @@ CXFLAGS = $(CFLAGS)
 # Executables
 EXEC_PROJ1   = $(OBJDIR)/proj1
 EXEC_PROJ1PP = $(OBJDIR)/proj1pp
-EXECS = $(EXEC_PROJ1) $(EXEC_PROJ1PP)
+EXEC_PROJ2   = $(OBJDIR)/proj2
+EXEC_PROJ2PP = $(OBJDIR)/proj2pp
+EXECS = $(EXEC_PROJ1) $(EXEC_PROJ1PP) $(EXEC_PROJ2) $(EXEC_PROJ2PP)
 
 
 # General rules (point to main focus files)
-all: proj1
+all: proj2
 
 clean:
 	rm -rf $(EXECS) $(OBJDIR)/*.o $(OBJDIR)/*.dSYM
 
-# Specific rules
-proj1: $(EXEC_PROJ1)
-proj1pp: $(EXEC_PROJ1PP)
-
 # Compilation rules
-$(EXEC_PROJ1): $(SRCDIR)/proj1.c
+proj1: $(SRCDIR)/proj1.c
 	$(CC) $(CCFLAGS) $^ -o $@
+proj1pp: $(SRCDIR)/proj1.cpp
+	$(CXX) $(CXFLAGS) $^ -o $@
 
-$(EXEC_PROJ1PP): $(SRCDIR)/proj1.cpp
+proj2: $(SRCDIR)/proj2.c
+	$(CC) $(CCFLAGS) $^ -o $@
+proj2pp: $(SRCDIR)/proj2.cpp
 	$(CXX) $(CXFLAGS) $^ -o $@
 
 
-.PHONY: all clean debug test valgrind
+.PHONY: all clean
