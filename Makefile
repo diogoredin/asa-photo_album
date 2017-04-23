@@ -36,16 +36,23 @@ all: proj2
 clean:
 	rm -rf $(EXECS) $(OBJDIR)/*.o $(OBJDIR)/*.dSYM
 
+# Specific rules
+proj1: $(EXEC_PROJ1)
+proj1pp: $(EXEC_PROJ1PP)
+proj2: $(EXEC_PROJ2)
+proj2pp: $(EXEC_PROJ2PP)
+
 # Compilation rules
-proj1: $(SRCDIR)/proj1.c
+$(EXEC_PROJ1): $(SRCDIR)/proj1.c
 	$(CC) $(CCFLAGS) $^ -o $@
-proj1pp: $(SRCDIR)/proj1.cpp
+
+$(EXEC_PROJ1PP): $(SRCDIR)/proj1.cpp
 	$(CXX) $(CXFLAGS) $^ -o $@
 
-proj2: $(SRCDIR)/proj2.c
+$(EXEC_PROJ2): $(SRCDIR)/proj2.c
 	$(CC) $(CCFLAGS) $^ -o $@
-proj2pp: $(SRCDIR)/proj2.cpp
+
+$(EXEC_PROJ2PP): $(SRCDIR)/proj2.cpp
 	$(CXX) $(CXFLAGS) $^ -o $@
 
-
-.PHONY: all clean
+.PHONY: all clean debug test valgrind
